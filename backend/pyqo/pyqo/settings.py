@@ -27,7 +27,19 @@ SECRET_KEY = "django-insecure-m^0qnbdp912uywmyys6nf8sfavf6cr2s8=0@@)0%ex9^j&h)-8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "pyqo-api.youcannothavethisdomain.com",
+    "pyqo.youcannothavethisdomain.com",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:8000", 
+    "https://pyqo-api.youcannothavethisdomain.com",
+    "http://pyqo.youcannothavethisdomain.com",
+]
 
 
 # Application definition
@@ -42,9 +54,12 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework.authtoken',
     'drf_spectacular',
+    'corsheaders',
+    'app',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
