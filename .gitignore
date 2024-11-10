@@ -6,6 +6,7 @@ backend/dist/
 backend/wheels/
 backend/*.egg-info
 backend/.env
+backend/pyqo/static/
 .python-version
 
 # Virtual environments
