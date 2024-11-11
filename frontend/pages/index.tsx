@@ -1,13 +1,20 @@
-import { Button, Group } from "@mantine/core";
+import { useEffect } from "react";
+
+import { useRouter } from "next/router";
+
+import { Title } from "@mantine/core";
 
 import { PyqoLayout } from "../components/PyqoLayout";
 
 export default function IndexPage() {
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/codes");
+  }, []);
+
   return (
     <PyqoLayout>
-      <Group mt={50} justify="center">
-        <Button size="xl">Welcome to Mantine!</Button>
-      </Group>
+      <Title order={1}>Welcome to Pyqo!</Title>
     </PyqoLayout>
   );
 }

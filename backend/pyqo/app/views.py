@@ -10,6 +10,11 @@ class ItemViewSet(viewsets.ModelViewSet):
         # Only return items owned by the logged-in user
         return Item.objects.filter(owner=self.request.user)
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['property_labels'] = self.request.query_params.getlist('property_labels')
+        return context
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 

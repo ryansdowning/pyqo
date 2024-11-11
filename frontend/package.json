@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "yarn openapi-typescript ../backend/pyqo/schema.yml -o ./schema.d.ts && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -17,6 +17,7 @@
     "next": "15.0.1",
     "openapi-fetch": "^0.13.0",
     "openapi-typescript": "^7.4.3",
+    "openapi-typescript-helpers": "^0.0.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tailwindcss": "^3.4.14",
@@ -33,5 +34,5 @@
     "postcss-simple-vars": "^7.0.1",
     "typescript": "^5.6.3"
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@1.22.22"
 }

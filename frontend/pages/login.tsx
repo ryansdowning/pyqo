@@ -22,11 +22,9 @@ export default function LoginPage() {
       // @ts-expect-error - This request expects token for some reason.
       body: { username, password },
     });
-    console.log({ result });
     if (result.error) {
       notifications.show({
         title: "Failed to login",
-        // @ts-expect-error - Wrong.
         message: Object.values(result.error).flat().join("\n"),
         color: "red",
       });

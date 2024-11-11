@@ -1,14 +1,52 @@
 import { PropsWithChildren } from "react";
 
+import { Url } from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/router";
 import { useLocalStorage } from "usehooks-ts";
 
 import { AppShell, Burger, Button, Group, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconLogout } from "@tabler/icons-react";
+import { IconListDetails, IconLogout, IconQrcode } from "@tabler/icons-react";
 
 import AuthenticatedProvider from "./AuthenticatedProvider";
 
+interface SideNavButtonProps {
+  label: string;
+  Icon: React.ReactNode;
+  url: Url;
+}
+
+function SideNavButton({ label, Icon, url }: SideNavButtonProps) {
+  const router = useRouter();
+
+  return (
+    <Button
+      h={28}
+      variant="transparent"
+      w="100%"
+      justify="flex-start"
+      styles={(theme) => ({
+        root: {
+          "&:hover": {
+            backgroundColor: theme.colors.gray[1],
+            color: theme.colors.blue[7],
+          },
+          "&:active": {
+            backgroundColor: theme.colors.blue[0],
+            color: theme.colors.blue[9],
+          },
+        },
+      })}
+      leftSection={Icon}
+      onClick={() => router.push(url)}
+    >
+      {label}
+    </Button>
+  );
+}
+
 export function PyqoLayout({ children }: PropsWithChildren) {
+  const router = useRouter();
   const [, setToken] = useLocalStorage("token", "");
   const [opened, { toggle }] = useDisclosure();
 
@@ -36,31 +74,12 @@ export function PyqoLayout({ children }: PropsWithChildren) {
         <AppShell.Navbar pt="sm">
           <Stack justify="space-between" h="100%">
             <Stack gap="xs" w="100%">
-              {Array(5)
-                .fill(0)
-                .map((_, index) => (
-                  <Button
-                    key={index}
-                    h={28}
-                    variant="transparent"
-                    w="100%"
-                    justify="flex-start"
-                    styles={(theme) => ({
-                      root: {
-                        "&:hover": {
-                          backgroundColor: theme.colors.gray[1],
-                          color: theme.colors.blue[7],
-                        },
-                        "&:active": {
-                          backgroundColor: theme.colors.blue[0],
-                          color: theme.colors.blue[9],
-                        },
-                      },
-                    })}
-                  >
-                    Button {index + 1}
-                  </Button>
-                ))}
+              <SideNavButton label="Codes" Icon={<IconQrcode />} url="/codes" />
+              <SideNavButton
+                label="Properties"
+                Icon={<IconListDetails />}
+                url="/properties"
+              />
             </Stack>
             <Button
               variant="transparent"
