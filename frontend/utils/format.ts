@@ -9,7 +9,7 @@ export function formatDate(date: string): string {
   });
 }
 
-interface DRFError {
+export interface DRFError {
   type: string;
   errors: Array<{
     code: string;

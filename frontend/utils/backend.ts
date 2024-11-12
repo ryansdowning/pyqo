@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
-import createClient, { ClientMethod } from "openapi-fetch";
-import { HttpMethod, MediaType } from "openapi-typescript-helpers";
+import createClient from "openapi-fetch";
 import { useLocalStorage } from "usehooks-ts";
 
 import { notifications } from "@mantine/notifications";
@@ -13,18 +12,63 @@ export const BASE_URL = "http://127.0.0.1:8000";
 export const client = createClient<paths>({ baseUrl: BASE_URL });
 export const PAGE_SIZE = 25;
 
-type DisjointSuccess<Data, Error> =
+type ApiResult<Data, Error> =
   | {
       success: true;
       data: Data;
     }
   | { success: false; error: Error };
 
+type RouteQueryParams<
+  Path extends keyof paths,
+  Method extends keyof paths[Path]
+> = paths[Path][Method] extends { parameters: { query?: infer Params } }
+  ? Params
+  : undefined;
+
+type RoutePathParams<
+  Path extends keyof paths,
+  Method extends keyof paths[Path]
+> = paths[Path][Method] extends { parameters: { path?: infer Params } }
+  ? Params
+  : undefined;
+
+type RouteBody<
+  Path extends keyof paths,
+  Method extends keyof paths[Path]
+> = paths[Path][Method] extends {
+  requestBody: { content: { "application/json": infer Body } };
+}
+  ? Body
+  : undefined;
+
+// Generic FetchOptions type that dynamically defines `params` and `body`
+type FetchOptions<
+  Path extends keyof paths,
+  Method extends keyof paths[Path]
+> = {
+  query?: RouteQueryParams<Path, Method>;
+  body?: RouteBody<Path, Method>;
+} & (RoutePathParams<Path, Method> extends undefined
+  ? {} // If path params are undefined, we can omit it.
+  : { path: RoutePathParams<Path, Method> }); // Otherwise, it must be required.
+
 interface UseQueryOptions<Result, Data, Failure> {
   executeQuery: () => Promise<Result>;
-  getDataOrErrorFromResponse: (
-    result: Result
-  ) => DisjointSuccess<Data, Failure>;
+  getDataOrErrorFromResponse: (result: Result) => ApiResult<Data, Failure>;
+}
+
+function useHeaders() {
+  const [token] = useLocalStorage("token", "");
+
+  if (!token) {
+    return undefined;
+  }
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Token ${token}`,
+  };
 }
 
 function useQuery<Result, Data>({
@@ -48,89 +92,11 @@ function useQuery<Result, Data>({
   return { fetching, data, error };
 }
 
-type RouteQueryParams<
-  Path extends keyof paths,
-  Method extends keyof paths[Path]
-> = paths[Path][Method] extends { parameters: { query?: infer Params } }
-  ? Params
-  : undefined;
-
-type RouteBody<
-  Path extends keyof paths,
-  Method extends keyof paths[Path]
-> = paths[Path][Method] extends {
-  requestBody: { content: { "application/json": infer Body } };
-}
-  ? Body
-  : undefined;
-
-// Generic FetchOptions type that dynamically defines `params` and `body`
-type FetchOptions<
-  Path extends keyof paths,
-  Method extends keyof paths[Path]
-> = {
-  query?: RouteQueryParams<Path, Method>;
-  body?: RouteBody<Path, Method>;
-};
-
-function useHeaders() {
-  const [token] = useLocalStorage("token", "");
-
-  if (!token) {
-    return undefined;
-  }
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Token ${token}`,
-  };
-}
-
-type NormalizeMethods<T> = {
-  [M in HttpMethod]: M extends keyof T
-    ? T[M] extends never | undefined
-      ? {}
-      : T[M]
-    : {};
-};
-
-type CompatiblePaths = {
-  [P in keyof paths]: NormalizeMethods<paths[P]>;
-};
-
-// Define FetchResponseFor with Awaited to unwrap the Promise from ClientMethod's return type
-type FetchResponseFor<
-  Path extends keyof CompatiblePaths,
-  Method extends keyof CompatiblePaths[Path] & HttpMethod,
-  Media extends MediaType
-> = Method extends HttpMethod
-  ? Awaited<ReturnType<ClientMethod<CompatiblePaths, Method, Media>>>
-  : never;
-
-type foo = FetchResponseFor<"/app/items/", "get", "application/json">;
-
-function getDataOrErrorFromResponse<
-  Result extends { error?: any; data: any },
-  Data
->(result: Result): DisjointSuccess<Data, string> {
-  if (result.error) {
-    const error = drfErrorToString(result.error);
-    notifications.show({
-      title: "Failed to load codes",
-      message: error,
-      color: "red",
-    });
-    return { success: false, error };
-  }
-  return { success: true, data: result.data };
-}
-
-export function useGetItems({ query }: FetchOptions<"/app/items/", "get">) {
+export function useListItems(params: FetchOptions<"/app/items/", "get">) {
   const headers = useHeaders();
 
   return useQuery({
-    executeQuery: () =>
-      client.GET("/app/items/", { headers, params: { query } }),
+    executeQuery: () => client.GET("/app/items/", { headers, params }),
     getDataOrErrorFromResponse: (result) => {
       if (result.error) {
         const error = drfErrorToString(result.error);
@@ -141,10 +107,72 @@ export function useGetItems({ query }: FetchOptions<"/app/items/", "get">) {
         });
         return { success: false, error };
       }
-      return { success: true, data: result.data } as {
-        success: true;
-        data: typeof result.data;
-      };
+      return { success: true, data: result.data };
+    },
+  });
+}
+
+export function useGetItem(params: FetchOptions<"/app/items/{id}/", "get">) {
+  const headers = useHeaders();
+
+  return useQuery({
+    executeQuery: () => client.GET("/app/items/{id}/", { headers, params }),
+    getDataOrErrorFromResponse: (result) => {
+      if (result.error) {
+        const error = drfErrorToString(result.error);
+        notifications.show({
+          title: "Failed to load item",
+          message: error,
+          color: "red",
+        });
+        return { success: false, error };
+      }
+      return { success: true, data: result.data };
+    },
+  });
+}
+
+export function useListProperties(
+  params: FetchOptions<"/app/properties/", "get">
+) {
+  const headers = useHeaders();
+
+  return useQuery({
+    executeQuery: () => client.GET("/app/properties/", { headers, params }),
+    getDataOrErrorFromResponse: (result) => {
+      if (result.error) {
+        const error = drfErrorToString(result.error);
+        notifications.show({
+          title: "Failed to load properties",
+          message: error,
+          color: "red",
+        });
+        return { success: false, error };
+      }
+      return { success: true, data: result.data };
+    },
+  });
+}
+
+export function useGetProperty(
+  params: FetchOptions<"/app/properties/{id}/", "get">
+) {
+  const headers = useHeaders();
+
+  return useQuery({
+    executeQuery: () =>
+      client.GET("/app/properties/{id}/", { headers, params }),
+    getDataOrErrorFromResponse: (result) => {
+      if (result.error) {
+        const error = drfErrorToString(result.error);
+        notifications.show({
+          title: "Failed to load property",
+          message: error,
+          color: "red",
+        });
+        return { success: false, error };
+      }
+      return { success: true, data: result.data };
     },
   });
 }
