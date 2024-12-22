@@ -2,11 +2,16 @@ import { PropsWithChildren } from "react";
 
 import { Url } from "next/dist/shared/lib/router/router";
 import { useRouter } from "next/router";
-import { useLocalStorage } from "usehooks-ts";
 
 import { AppShell, Burger, Button, Group, Stack } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { IconListDetails, IconLogout, IconQrcode } from "@tabler/icons-react";
+import { useDisclosure, useLocalStorage } from "@mantine/hooks";
+import {
+  IconListDetails,
+  IconLogout,
+  IconMoon,
+  IconQrcode,
+  IconSun,
+} from "@tabler/icons-react";
 
 import AuthenticatedProvider from "./AuthenticatedProvider";
 
@@ -46,8 +51,11 @@ function SideNavButton({ label, Icon, url }: SideNavButtonProps) {
 }
 
 export function PyqoLayout({ children }: PropsWithChildren) {
-  const router = useRouter();
-  const [, setToken] = useLocalStorage("token", "");
+  const [, setToken] = useLocalStorage({ key: "token", defaultValue: "" });
+  const [darkMode, setDarkMode] = useLocalStorage<boolean | undefined>({
+    key: "darkMode",
+    defaultValue: undefined,
+  });
   const [opened, { toggle }] = useDisclosure();
 
   return (
@@ -60,7 +68,6 @@ export function PyqoLayout({ children }: PropsWithChildren) {
           collapsed: { mobile: !opened },
         }}
       >
-        {/* Only shows header on small screens (mobile) */}
         <AppShell.Header hiddenFrom="sm">
           <Group h="100%" px="md">
             <Burger
@@ -81,15 +88,25 @@ export function PyqoLayout({ children }: PropsWithChildren) {
                 url="/properties"
               />
             </Stack>
-            <Button
-              variant="transparent"
-              justify="flex-start"
-              w="100%"
-              onClick={() => setToken("")}
-              leftSection={<IconLogout />}
-            >
-              Logout
-            </Button>
+            <Stack gap="xs" w="100%">
+              <Button
+                variant="transparent"
+                justify="flex-start"
+                w="100%"
+                onClick={() => setDarkMode(!darkMode)}
+                leftSection={darkMode ? <IconSun /> : <IconMoon />}
+              />
+
+              <Button
+                variant="transparent"
+                justify="flex-start"
+                w="100%"
+                onClick={() => setToken("")}
+                leftSection={<IconLogout />}
+              >
+                Logout
+              </Button>
+            </Stack>
           </Stack>
         </AppShell.Navbar>
         <AppShell.Main>{children}</AppShell.Main>

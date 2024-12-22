@@ -9,11 +9,13 @@ import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-import { theme } from "../theme";
+import { useTheme } from "../theme";
 
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: any) {
+  const { theme } = useTheme();
+
   return (
     <MantineProvider theme={theme}>
       <Notifications />

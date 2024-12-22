@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 import { useRouter } from "next/router";
-import { useLocalStorage } from "usehooks-ts";
 
 import { Box, Button, Stack, TextInput, Title } from "@mantine/core";
+import { useLocalStorage } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 
 import AuthenticatedProvider from "../components/AuthenticatedProvider";
@@ -14,18 +14,17 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [, setToken] = useLocalStorage("token", "");
+  const [, setToken] = useLocalStorage({ key: "token", defaultValue: "" });
 
   const handleLogin = async () => {
     setLoading(true);
     const result = await client.POST("/token/", {
-      // @ts-expect-error - This request expects token for some reason.
-      body: { username, password },
+      body: { username, password, token: "" },
     });
     if (result.error) {
       notifications.show({
         title: "Failed to login",
-        message: Object.values(result.error).flat().join("\n"),
+        message: "Login was not successful. Please try again.",
         color: "red",
       });
     } else {

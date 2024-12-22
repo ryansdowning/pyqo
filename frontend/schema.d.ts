@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/app/items/{id}/view/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["app_items_view_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/app/items/{id}/": {
         parameters: {
             query?: never;
@@ -142,6 +158,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/token/validate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["token_validate_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -494,6 +526,7 @@ export interface components {
             type: "validation_error";
             errors: components["schemas"]["AppItemsUpdateError"][];
         };
+        AppItemsViewRetrieveErrorResponse400: components["schemas"]["ParseErrorResponse"];
         AppPropertiesCreateError: components["schemas"]["AppPropertiesCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppPropertiesCreateLabelErrorComponent"] | components["schemas"]["AppPropertiesCreateOwnerErrorComponent"];
         AppPropertiesCreateErrorResponse400: components["schemas"]["AppPropertiesCreateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppPropertiesCreateLabelErrorComponent: {
@@ -677,7 +710,7 @@ export interface components {
             type: "validation_error";
             errors: components["schemas"]["AppPropertiesUpdateError"][];
         };
-        AppScansCreateError: components["schemas"]["AppScansCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansCreateLocationErrorComponent"] | components["schemas"]["AppScansCreateOwnerErrorComponent"] | components["schemas"]["AppScansCreateItemErrorComponent"];
+        AppScansCreateError: components["schemas"]["AppScansCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansCreatePositionErrorComponent"] | components["schemas"]["AppScansCreateOwnerErrorComponent"] | components["schemas"]["AppScansCreateItemErrorComponent"];
         AppScansCreateErrorResponse400: components["schemas"]["AppScansCreateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansCreateItemErrorComponent: {
             /**
@@ -693,25 +726,6 @@ export interface components {
              * @enum {string}
              */
             code: "does_not_exist" | "incorrect_type" | "null" | "required";
-            detail: string;
-        };
-        AppScansCreateLocationErrorComponent: {
-            /**
-             * @description * `location` - location (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "location";
-            /**
-             * @description * `blank` - blank
-             *     * `invalid` - invalid
-             *     * `max_length` - max_length
-             *     * `null` - null
-             *     * `null_characters_not_allowed` - null_characters_not_allowed
-             *     * `required` - required
-             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
-             * @enum {string}
-             */
-            code: "blank" | "invalid" | "max_length" | "null" | "null_characters_not_allowed" | "required" | "surrogate_characters_not_allowed";
             detail: string;
         };
         AppScansCreateNonFieldErrorsErrorComponent: {
@@ -737,11 +751,23 @@ export interface components {
             /**
              * @description * `does_not_exist` - does_not_exist
              *     * `incorrect_type` - incorrect_type
-             *     * `null` - null
+             * @enum {string}
+             */
+            code: "does_not_exist" | "incorrect_type";
+            detail: string;
+        };
+        AppScansCreatePositionErrorComponent: {
+            /**
+             * @description * `position` - position (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "position";
+            /**
+             * @description * `null` - null
              *     * `required` - required
              * @enum {string}
              */
-            code: "does_not_exist" | "incorrect_type" | "null" | "required";
+            code: "null" | "required";
             detail: string;
         };
         AppScansCreateValidationError: {
@@ -754,7 +780,7 @@ export interface components {
         };
         AppScansDestroyErrorResponse400: components["schemas"]["ParseErrorResponse"];
         AppScansListErrorResponse400: components["schemas"]["ParseErrorResponse"];
-        AppScansPartialUpdateError: components["schemas"]["AppScansPartialUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansPartialUpdateLocationErrorComponent"] | components["schemas"]["AppScansPartialUpdateOwnerErrorComponent"] | components["schemas"]["AppScansPartialUpdateItemErrorComponent"];
+        AppScansPartialUpdateError: components["schemas"]["AppScansPartialUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansPartialUpdatePositionErrorComponent"] | components["schemas"]["AppScansPartialUpdateOwnerErrorComponent"] | components["schemas"]["AppScansPartialUpdateItemErrorComponent"];
         AppScansPartialUpdateErrorResponse400: components["schemas"]["AppScansPartialUpdateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansPartialUpdateItemErrorComponent: {
             /**
@@ -770,25 +796,6 @@ export interface components {
              * @enum {string}
              */
             code: "does_not_exist" | "incorrect_type" | "null" | "required";
-            detail: string;
-        };
-        AppScansPartialUpdateLocationErrorComponent: {
-            /**
-             * @description * `location` - location (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "location";
-            /**
-             * @description * `blank` - blank
-             *     * `invalid` - invalid
-             *     * `max_length` - max_length
-             *     * `null` - null
-             *     * `null_characters_not_allowed` - null_characters_not_allowed
-             *     * `required` - required
-             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
-             * @enum {string}
-             */
-            code: "blank" | "invalid" | "max_length" | "null" | "null_characters_not_allowed" | "required" | "surrogate_characters_not_allowed";
             detail: string;
         };
         AppScansPartialUpdateNonFieldErrorsErrorComponent: {
@@ -814,11 +821,23 @@ export interface components {
             /**
              * @description * `does_not_exist` - does_not_exist
              *     * `incorrect_type` - incorrect_type
-             *     * `null` - null
+             * @enum {string}
+             */
+            code: "does_not_exist" | "incorrect_type";
+            detail: string;
+        };
+        AppScansPartialUpdatePositionErrorComponent: {
+            /**
+             * @description * `position` - position (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "position";
+            /**
+             * @description * `null` - null
              *     * `required` - required
              * @enum {string}
              */
-            code: "does_not_exist" | "incorrect_type" | "null" | "required";
+            code: "null" | "required";
             detail: string;
         };
         AppScansPartialUpdateValidationError: {
@@ -830,7 +849,7 @@ export interface components {
             errors: components["schemas"]["AppScansPartialUpdateError"][];
         };
         AppScansRetrieveErrorResponse400: components["schemas"]["ParseErrorResponse"];
-        AppScansUpdateError: components["schemas"]["AppScansUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansUpdateLocationErrorComponent"] | components["schemas"]["AppScansUpdateOwnerErrorComponent"] | components["schemas"]["AppScansUpdateItemErrorComponent"];
+        AppScansUpdateError: components["schemas"]["AppScansUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansUpdatePositionErrorComponent"] | components["schemas"]["AppScansUpdateOwnerErrorComponent"] | components["schemas"]["AppScansUpdateItemErrorComponent"];
         AppScansUpdateErrorResponse400: components["schemas"]["AppScansUpdateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansUpdateItemErrorComponent: {
             /**
@@ -846,25 +865,6 @@ export interface components {
              * @enum {string}
              */
             code: "does_not_exist" | "incorrect_type" | "null" | "required";
-            detail: string;
-        };
-        AppScansUpdateLocationErrorComponent: {
-            /**
-             * @description * `location` - location (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "location";
-            /**
-             * @description * `blank` - blank
-             *     * `invalid` - invalid
-             *     * `max_length` - max_length
-             *     * `null` - null
-             *     * `null_characters_not_allowed` - null_characters_not_allowed
-             *     * `required` - required
-             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
-             * @enum {string}
-             */
-            code: "blank" | "invalid" | "max_length" | "null" | "null_characters_not_allowed" | "required" | "surrogate_characters_not_allowed";
             detail: string;
         };
         AppScansUpdateNonFieldErrorsErrorComponent: {
@@ -890,11 +890,23 @@ export interface components {
             /**
              * @description * `does_not_exist` - does_not_exist
              *     * `incorrect_type` - incorrect_type
-             *     * `null` - null
+             * @enum {string}
+             */
+            code: "does_not_exist" | "incorrect_type";
+            detail: string;
+        };
+        AppScansUpdatePositionErrorComponent: {
+            /**
+             * @description * `position` - position (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "position";
+            /**
+             * @description * `null` - null
              *     * `required` - required
              * @enum {string}
              */
-            code: "does_not_exist" | "incorrect_type" | "null" | "required";
+            code: "null" | "required";
             detail: string;
         };
         AppScansUpdateValidationError: {
@@ -1135,8 +1147,8 @@ export interface components {
             readonly id?: number;
             /** Format: date-time */
             readonly created_at?: string;
-            location?: string;
-            owner?: number;
+            position?: string;
+            owner?: number | null;
             item?: number;
         };
         Property: {
@@ -1152,8 +1164,8 @@ export interface components {
             readonly id: number;
             /** Format: date-time */
             readonly created_at: string;
-            location: string;
-            owner: number;
+            position: string;
+            owner?: number | null;
             item: number;
         };
         /**
@@ -1221,11 +1233,18 @@ export interface components {
             type: "validation_error";
             errors: components["schemas"]["TokenCreateError"][];
         };
+        TokenValidate: {
+            valid: boolean;
+        };
+        TokenValidateRetrieveErrorResponse400: components["schemas"]["ParseErrorResponse"];
         /**
          * @description * `validation_error` - Validation Error
          * @enum {string}
          */
         ValidationErrorEnum: "validation_error";
+        ViewItem: {
+            success: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -1820,6 +1839,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppItemsCreateErrorResponse400"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse401"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse404"];
+                };
+            };
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse405"];
+                };
+            };
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse406"];
+                };
+            };
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse415"];
+                };
+            };
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse500"];
+                };
+            };
+        };
+    };
+    app_items_view_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ViewItem"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppItemsViewRetrieveErrorResponse400"];
                 };
             };
             401: {
@@ -3176,6 +3272,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenCreateErrorResponse400"];
+                };
+            };
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse405"];
+                };
+            };
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse406"];
+                };
+            };
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse415"];
+                };
+            };
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse500"];
+                };
+            };
+        };
+    };
+    token_validate_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenValidate"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenValidateRetrieveErrorResponse400"];
                 };
             };
             401: {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { useLocalStorage } from "usehooks-ts";
-
+import { useLocalStorage } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 
 import { PyqoLayout } from "../components/PyqoLayout";
@@ -13,7 +12,7 @@ export default function PropertiesPage() {
   const [properties, setProperties] = useState<
     components["schemas"]["Property"][]
   >([]);
-  const [token] = useLocalStorage("token", "");
+  const [token] = useLocalStorage({ key: "token", defaultValue: "" });
 
   useEffect(() => {
     client

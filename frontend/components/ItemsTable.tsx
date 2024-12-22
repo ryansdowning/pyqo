@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+
 import { Table, TableProps } from "@mantine/core";
 
 import { components } from "../schema";
@@ -8,8 +10,13 @@ export interface ItemsTableProps extends TableProps {
 }
 
 export default function ItemsTable({ items, ...props }: ItemsTableProps) {
+  const router = useRouter();
   const rows = items.map((item) => (
-    <Table.Tr key={item.id}>
+    <Table.Tr
+      key={item.id}
+      onClick={() => router.push(`/codes/${item.id}`)}
+      className="hover:bg-gray-200"
+    >
       <Table.Td>{item.id}</Table.Td>
       <Table.Td>{formatDate(item.created_at)}</Table.Td>
       <Table.Td>
@@ -20,7 +27,7 @@ export default function ItemsTable({ items, ...props }: ItemsTableProps) {
   ));
 
   return (
-    <Table>
+    <Table {...props}>
       <Table.Thead>
         <Table.Tr>
           <Table.Th>ID</Table.Th>

@@ -968,6 +968,124 @@ paths:
               schema:
                 $ref: '#/components/schemas/Item'
           description: ''
+  /app/items/{id}/view/:
+    get:
+      operationId: app_items_view_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - app
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppItemsViewRetrieveErrorResponse400'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+              examples:
+                AuthenticationFailed:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: authentication_failed
+                      detail: Incorrect authentication credentials.
+                      attr: null
+                NotAuthenticated:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_authenticated
+                      detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse404'
+              examples:
+                NotFound:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_found
+                      detail: Not found.
+                      attr: null
+          description: ''
+        '405':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse405'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: method_not_allowed
+                      detail: Method "get" not allowed.
+                      attr: null
+          description: ''
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse406'
+              examples:
+                NotAcceptable:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_acceptable
+                      detail: Could not satisfy the request Accept header.
+                      attr: null
+          description: ''
+        '415':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse415'
+              examples:
+                UnsupportedMediaType:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: unsupported_media_type
+                      detail: Unsupported media type "application/json" in request.
+                      attr: null
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+              examples:
+                APIException:
+                  value:
+                    type: server_error
+                    errors:
+                    - code: error
+                      detail: A server error occurred.
+                      attr: null
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewItem'
+          description: ''
   /app/items/{id}/:
     get:
       operationId: app_items_retrieve
@@ -2917,14 +3035,89 @@ paths:
             schema:
               $ref: '#/components/schemas/AuthToken'
         required: true
-      security:
-      - tokenAuth: []
       responses:
         '400':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenCreateErrorResponse400'
+          description: ''
+        '405':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse405'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: method_not_allowed
+                      detail: Method "get" not allowed.
+                      attr: null
+          description: ''
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse406'
+              examples:
+                NotAcceptable:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_acceptable
+                      detail: Could not satisfy the request Accept header.
+                      attr: null
+          description: ''
+        '415':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse415'
+              examples:
+                UnsupportedMediaType:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: unsupported_media_type
+                      detail: Unsupported media type "application/json" in request.
+                      attr: null
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+              examples:
+                APIException:
+                  value:
+                    type: server_error
+                    errors:
+                    - code: error
+                      detail: A server error occurred.
+                      attr: null
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /token/validate/:
+    get:
+      operationId: token_validate_retrieve
+      tags:
+      - token
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidateRetrieveErrorResponse400'
           description: ''
         '401':
           content:
@@ -3007,7 +3200,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthToken'
+                $ref: '#/components/schemas/TokenValidate'
           description: ''
 components:
   schemas:
@@ -3689,6 +3882,13 @@ components:
       required:
       - errors
       - type
+    AppItemsViewRetrieveErrorResponse400:
+      oneOf:
+      - $ref: '#/components/schemas/ParseErrorResponse'
+      discriminator:
+        propertyName: type
+        mapping:
+          client_error: '#/components/schemas/ParseErrorResponse'
     AppPropertiesCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppPropertiesCreateNonFieldErrorsErrorComponent'
@@ -4055,14 +4255,14 @@ components:
     AppScansCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansCreateLocationErrorComponent'
+      - $ref: '#/components/schemas/AppScansCreatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
-          location: '#/components/schemas/AppScansCreateLocationErrorComponent'
+          position: '#/components/schemas/AppScansCreatePositionErrorComponent'
           owner: '#/components/schemas/AppScansCreateOwnerErrorComponent'
           item: '#/components/schemas/AppScansCreateItemErrorComponent'
     AppScansCreateErrorResponse400:
@@ -4094,38 +4294,6 @@ components:
             * `incorrect_type` - incorrect_type
             * `null` - null
             * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppScansCreateLocationErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - location
-          type: string
-          description: '* `location` - location'
-        code:
-          enum:
-          - blank
-          - invalid
-          - max_length
-          - 'null'
-          - null_characters_not_allowed
-          - required
-          - surrogate_characters_not_allowed
-          type: string
-          description: |-
-            * `blank` - blank
-            * `invalid` - invalid
-            * `max_length` - max_length
-            * `null` - null
-            * `null_characters_not_allowed` - null_characters_not_allowed
-            * `required` - required
-            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
         detail:
           type: string
       required:
@@ -4166,12 +4334,30 @@ components:
           enum:
           - does_not_exist
           - incorrect_type
-          - 'null'
-          - required
           type: string
           description: |-
             * `does_not_exist` - does_not_exist
             * `incorrect_type` - incorrect_type
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppScansCreatePositionErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - position
+          type: string
+          description: '* `position` - position'
+        code:
+          enum:
+          - 'null'
+          - required
+          type: string
+          description: |-
             * `null` - null
             * `required` - required
         detail:
@@ -4209,14 +4395,14 @@ components:
     AppScansPartialUpdateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansPartialUpdateLocationErrorComponent'
+      - $ref: '#/components/schemas/AppScansPartialUpdatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
-          location: '#/components/schemas/AppScansPartialUpdateLocationErrorComponent'
+          position: '#/components/schemas/AppScansPartialUpdatePositionErrorComponent'
           owner: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
     AppScansPartialUpdateErrorResponse400:
@@ -4248,38 +4434,6 @@ components:
             * `incorrect_type` - incorrect_type
             * `null` - null
             * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppScansPartialUpdateLocationErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - location
-          type: string
-          description: '* `location` - location'
-        code:
-          enum:
-          - blank
-          - invalid
-          - max_length
-          - 'null'
-          - null_characters_not_allowed
-          - required
-          - surrogate_characters_not_allowed
-          type: string
-          description: |-
-            * `blank` - blank
-            * `invalid` - invalid
-            * `max_length` - max_length
-            * `null` - null
-            * `null_characters_not_allowed` - null_characters_not_allowed
-            * `required` - required
-            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
         detail:
           type: string
       required:
@@ -4320,12 +4474,30 @@ components:
           enum:
           - does_not_exist
           - incorrect_type
-          - 'null'
-          - required
           type: string
           description: |-
             * `does_not_exist` - does_not_exist
             * `incorrect_type` - incorrect_type
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppScansPartialUpdatePositionErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - position
+          type: string
+          description: '* `position` - position'
+        code:
+          enum:
+          - 'null'
+          - required
+          type: string
+          description: |-
             * `null` - null
             * `required` - required
         detail:
@@ -4356,14 +4528,14 @@ components:
     AppScansUpdateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansUpdateLocationErrorComponent'
+      - $ref: '#/components/schemas/AppScansUpdatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
-          location: '#/components/schemas/AppScansUpdateLocationErrorComponent'
+          position: '#/components/schemas/AppScansUpdatePositionErrorComponent'
           owner: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansUpdateItemErrorComponent'
     AppScansUpdateErrorResponse400:
@@ -4395,38 +4567,6 @@ components:
             * `incorrect_type` - incorrect_type
             * `null` - null
             * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppScansUpdateLocationErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - location
-          type: string
-          description: '* `location` - location'
-        code:
-          enum:
-          - blank
-          - invalid
-          - max_length
-          - 'null'
-          - null_characters_not_allowed
-          - required
-          - surrogate_characters_not_allowed
-          type: string
-          description: |-
-            * `blank` - blank
-            * `invalid` - invalid
-            * `max_length` - max_length
-            * `null` - null
-            * `null_characters_not_allowed` - null_characters_not_allowed
-            * `required` - required
-            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
         detail:
           type: string
       required:
@@ -4467,12 +4607,30 @@ components:
           enum:
           - does_not_exist
           - incorrect_type
-          - 'null'
-          - required
           type: string
           description: |-
             * `does_not_exist` - does_not_exist
             * `incorrect_type` - incorrect_type
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppScansUpdatePositionErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - position
+          type: string
+          description: '* `position` - position'
+        code:
+          enum:
+          - 'null'
+          - required
+          type: string
+          description: |-
             * `null` - null
             * `required` - required
         detail:
@@ -4960,11 +5118,11 @@ components:
           type: string
           format: date-time
           readOnly: true
-        location:
+        position:
           type: string
-          maxLength: 255
         owner:
           type: integer
+          nullable: true
         item:
           type: integer
     Property:
@@ -5002,19 +5160,18 @@ components:
           type: string
           format: date-time
           readOnly: true
-        location:
+        position:
           type: string
-          maxLength: 255
         owner:
           type: integer
+          nullable: true
         item:
           type: integer
       required:
       - created_at
       - id
       - item
-      - location
-      - owner
+      - position
     ServerErrorEnum:
       enum:
       - server_error
@@ -5134,11 +5291,32 @@ components:
       required:
       - errors
       - type
+    TokenValidate:
+      type: object
+      properties:
+        valid:
+          type: boolean
+      required:
+      - valid
+    TokenValidateRetrieveErrorResponse400:
+      oneOf:
+      - $ref: '#/components/schemas/ParseErrorResponse'
+      discriminator:
+        propertyName: type
+        mapping:
+          client_error: '#/components/schemas/ParseErrorResponse'
     ValidationErrorEnum:
       enum:
       - validation_error
       type: string
       description: '* `validation_error` - Validation Error'
+    ViewItem:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
   securitySchemes:
     tokenAuth:
       type: apiKey

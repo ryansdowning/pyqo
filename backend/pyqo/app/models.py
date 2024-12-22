@@ -1,5 +1,6 @@
 from django.db import models
 from uuid import uuid4
+from geoposition.fields import GeopositionField
 
 class Item(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -9,9 +10,15 @@ class Item(models.Model):
 
 class Scan(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey("auth.User", related_name="scans", on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        "auth.User", 
+        related_name="scans", 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True
+    )
     item = models.ForeignKey(Item, related_name="scans", on_delete=models.CASCADE)
-    location = models.CharField(max_length=255)
+    position = GeopositionField()
 
 class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

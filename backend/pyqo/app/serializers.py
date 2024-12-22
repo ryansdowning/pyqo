@@ -18,21 +18,17 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_at', 'updated_at', 'owner', 'code', 'properties', 'latest_scan']
 
     def get_properties(self, obj):
-        # Retrieve property_labels from context if available; otherwise, default to None
         property_labels = self.context.get('property_labels', None)
 
-        # If property_labels is None or empty, return an empty list
         if not property_labels:
             return []
 
-        # Otherwise, filter ItemProperty instances based on the provided property labels
         item_properties = ItemProperty.objects.filter(
             item=obj,
             item__owner=obj.owner,
             property__label__in=property_labels
         ).select_related('property')
 
-        # Serialize the filtered properties
         return DynamicPropertySerializer(item_properties, many=True).data
 
     def get_latest_scan(self, obj):
@@ -56,3 +52,7 @@ class ItemPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemProperty
         fields = "__all__"
+
+
+class ViewItemSerializer(serializers.Serializer):
+    success = serializers.BooleanField()

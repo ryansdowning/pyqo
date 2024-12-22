@@ -17,11 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.authtoken import views
+
+from pyqo.views import ObtainAuthToken, ValidateTokenView
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('token/', views.obtain_auth_token),
+    path('token/', ObtainAuthToken.as_view()),
+    path('token/validate/', ValidateTokenView.as_view(), name='token-validate'),
     path('app/', include('app.urls')),
 ]

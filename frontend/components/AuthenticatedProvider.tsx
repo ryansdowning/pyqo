@@ -1,19 +1,25 @@
 import { PropsWithChildren, useEffect } from "react";
 
 import { useRouter } from "next/router";
-import { useLocalStorage } from "usehooks-ts";
+
+import { useLocalStorage } from "@mantine/hooks";
+
+import { client } from "../utils/backend";
 
 export default function AuthenticatedProvider({ children }: PropsWithChildren) {
   const router = useRouter();
-  const [token] = useLocalStorage("token", "");
+  const [token] = useLocalStorage({ key: "token" });
 
   useEffect(() => {
-    if (!token && router.pathname !== "/login") {
-      router.push("/login");
-    } else if (token && router.pathname === "/login") {
-      router.push("/");
-    }
+    client.GET("/token/validate/").then((result) => {
+      const valid = result?.data?.valid;
+      if (valid && router.pathname === "/login") {
+        router.push("/");
+      } else if (!valid && router.pathname !== "/login") {
+        router.push("/login");
+      }
+    });
   }, [token]);
 
-  return <>{children}</>;
+  return children;
 }

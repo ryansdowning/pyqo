@@ -27,6 +27,8 @@ SECRET_KEY = "django-insecure-m^0qnbdp912uywmyys6nf8sfavf6cr2s8=0@@)0%ex9^j&h)-8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+GEOPOSITION_GOOGLE_MAPS_API_KEY = None
+
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     'drf_standardized_errors',
     'django_filters',
     'corsheaders',
+    'geoposition',
     'app',
 ]
 

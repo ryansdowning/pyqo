@@ -8,6 +8,7 @@ import { BASE_URL, client } from "../../../utils/backend";
 export default function ViewItemPage() {
   const router = useRouter();
   const { id } = router.query;
+  // const foo = api.useQuery("get", "app/items/{id}/view", { query: { id } });
   const [fetching, setFetching] = useState(true);
   const [item, setItem] = useState<components["schemas"]["Item"] | null>(null);
 
