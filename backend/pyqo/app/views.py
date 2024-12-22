@@ -1,15 +1,24 @@
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
 from .models import Item, Scan, Property, ItemProperty
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .serializers import ItemSerializer, ScanSerializer, PropertySerializer, ItemPropertySerializer, ViewItemSerializer
 
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Item, Scan
 from .serializers import ItemSerializer
+from django.contrib.gis.geoip2 import GeoIP2
 
+@extend_schema(parameters=[
+    OpenApiParameter(
+            name='id',
+            required=True,
+            location=OpenApiParameter.PATH,
+            type=int
+        )
+])
 class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -26,6 +35,14 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+@extend_schema(parameters=[
+    OpenApiParameter(
+            name='id',
+            required=True,
+            location=OpenApiParameter.PATH,
+            type=int
+        )
+])
 class ScanViewSet(viewsets.ModelViewSet):
     serializer_class = ScanSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -37,6 +54,14 @@ class ScanViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+@extend_schema(parameters=[
+    OpenApiParameter(
+            name='id',
+            required=True,
+            location=OpenApiParameter.PATH,
+            type=int
+        )
+])
 class PropertyViewSet(viewsets.ModelViewSet):
     serializer_class = PropertySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -48,6 +73,14 @@ class PropertyViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+@extend_schema(parameters=[
+    OpenApiParameter(
+            name='id',
+            required=True,
+            location=OpenApiParameter.PATH,
+            type=int
+        )
+])
 class ItemPropertyViewSet(viewsets.ModelViewSet):
     serializer_class = ItemPropertySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -59,17 +92,19 @@ class ItemPropertyViewSet(viewsets.ModelViewSet):
 class ViewItemView(APIView):
     serializer_class = ViewItemSerializer
 
-    def get(self, request, id):
+    def post(self, request, id):
         item = get_object_or_404(Item, id=id)
 
-        latitude = request.query_params.get("latitude", None)
-        longitude = request.query_params.get("longitude", None)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
 
-        if not latitude or not longitude:
-            return Response(
-                {"error": "Latitude and longitude are required."}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        try:
+            latitude, longitude = GeoIP2().lat_lon(ip)
+        except Exception as e:
+            return Response(ViewItemSerializer({"success": False}).data, status=status.HTTP_200_OK)
 
         Scan.objects.create(
             owner=request.user if request.user.is_authenticated else None,
@@ -79,4 +114,4 @@ class ViewItemView(APIView):
 
         response_data = {"success": True}
         serializer = ViewItemSerializer(response_data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

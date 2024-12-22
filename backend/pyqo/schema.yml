@@ -8,6 +8,11 @@ paths:
     get:
       operationId: app_item_properties_list
       parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       - name: page
         required: false
         in: query
@@ -124,6 +129,12 @@ paths:
           description: ''
     post:
       operationId: app_item_properties_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - app
       requestBody:
@@ -251,7 +262,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -367,7 +378,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -495,7 +506,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -622,7 +633,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -732,6 +743,11 @@ paths:
     get:
       operationId: app_items_list
       parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       - name: page
         required: false
         in: query
@@ -848,6 +864,12 @@ paths:
           description: ''
     post:
       operationId: app_items_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - app
       requestBody:
@@ -969,8 +991,8 @@ paths:
                 $ref: '#/components/schemas/Item'
           description: ''
   /app/items/{id}/view/:
-    get:
-      operationId: app_items_view_retrieve
+    post:
+      operationId: app_items_view_create
       parameters:
       - in: path
         name: id
@@ -979,6 +1001,18 @@ paths:
         required: true
       tags:
       - app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ViewItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ViewItem'
+        required: true
       security:
       - tokenAuth: []
       - {}
@@ -987,7 +1021,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppItemsViewRetrieveErrorResponse400'
+                $ref: '#/components/schemas/AppItemsViewCreateErrorResponse400'
           description: ''
         '401':
           content:
@@ -1093,7 +1127,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -1209,7 +1243,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -1337,7 +1371,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -1464,7 +1498,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -1574,6 +1608,11 @@ paths:
     get:
       operationId: app_properties_list
       parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       - name: page
         required: false
         in: query
@@ -1690,6 +1729,12 @@ paths:
           description: ''
     post:
       operationId: app_properties_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - app
       requestBody:
@@ -1817,7 +1862,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -1933,7 +1978,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2061,7 +2106,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2188,7 +2233,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2298,6 +2343,11 @@ paths:
     get:
       operationId: app_scans_list
       parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       - name: page
         required: false
         in: query
@@ -2414,6 +2464,12 @@ paths:
           description: ''
     post:
       operationId: app_scans_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - app
       requestBody:
@@ -2541,7 +2597,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2657,7 +2713,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2785,7 +2841,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -2912,7 +2968,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - app
@@ -3882,13 +3938,82 @@ components:
       required:
       - errors
       - type
-    AppItemsViewRetrieveErrorResponse400:
+    AppItemsViewCreateError:
       oneOf:
+      - $ref: '#/components/schemas/AppItemsViewCreateNonFieldErrorsErrorComponent'
+      - $ref: '#/components/schemas/AppItemsViewCreateSuccessErrorComponent'
+      discriminator:
+        propertyName: attr
+        mapping:
+          non_field_errors: '#/components/schemas/AppItemsViewCreateNonFieldErrorsErrorComponent'
+          success: '#/components/schemas/AppItemsViewCreateSuccessErrorComponent'
+    AppItemsViewCreateErrorResponse400:
+      oneOf:
+      - $ref: '#/components/schemas/AppItemsViewCreateValidationError'
       - $ref: '#/components/schemas/ParseErrorResponse'
       discriminator:
         propertyName: type
         mapping:
+          validation_error: '#/components/schemas/AppItemsViewCreateValidationError'
           client_error: '#/components/schemas/ParseErrorResponse'
+    AppItemsViewCreateNonFieldErrorsErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - non_field_errors
+          type: string
+          description: '* `non_field_errors` - non_field_errors'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppItemsViewCreateSuccessErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - success
+          type: string
+          description: '* `success` - success'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          - required
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+            * `required` - required
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppItemsViewCreateValidationError:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ValidationErrorEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppItemsViewCreateError'
+      required:
+      - errors
+      - type
     AppPropertiesCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppPropertiesCreateNonFieldErrorsErrorComponent'
@@ -4255,14 +4380,12 @@ components:
     AppScansCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansCreatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
-          position: '#/components/schemas/AppScansCreatePositionErrorComponent'
           owner: '#/components/schemas/AppScansCreateOwnerErrorComponent'
           item: '#/components/schemas/AppScansCreateItemErrorComponent'
     AppScansCreateErrorResponse400:
@@ -4344,28 +4467,6 @@ components:
       - attr
       - code
       - detail
-    AppScansCreatePositionErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - position
-          type: string
-          description: '* `position` - position'
-        code:
-          enum:
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `null` - null
-            * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
     AppScansCreateValidationError:
       type: object
       properties:
@@ -4395,14 +4496,12 @@ components:
     AppScansPartialUpdateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansPartialUpdatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
-          position: '#/components/schemas/AppScansPartialUpdatePositionErrorComponent'
           owner: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
     AppScansPartialUpdateErrorResponse400:
@@ -4484,28 +4583,6 @@ components:
       - attr
       - code
       - detail
-    AppScansPartialUpdatePositionErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - position
-          type: string
-          description: '* `position` - position'
-        code:
-          enum:
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `null` - null
-            * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
     AppScansPartialUpdateValidationError:
       type: object
       properties:
@@ -4528,14 +4605,12 @@ components:
     AppScansUpdateError:
       oneOf:
       - $ref: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppScansUpdatePositionErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateItemErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
-          position: '#/components/schemas/AppScansUpdatePositionErrorComponent'
           owner: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansUpdateItemErrorComponent'
     AppScansUpdateErrorResponse400:
@@ -4617,28 +4692,6 @@ components:
       - attr
       - code
       - detail
-    AppScansUpdatePositionErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - position
-          type: string
-          description: '* `position` - position'
-        code:
-          enum:
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `null` - null
-            * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
     AppScansUpdateValidationError:
       type: object
       properties:
@@ -4672,6 +4725,15 @@ components:
       - client_error
       type: string
       description: '* `client_error` - Client Error'
+    DynamicProperty:
+      type: object
+      properties:
+        label:
+          type: string
+        value: {}
+      required:
+      - label
+      - value
     Error401:
       type: object
       properties:
@@ -4882,10 +4944,13 @@ components:
           format: uuid
           readOnly: true
         properties:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicProperty'
           readOnly: true
         latest_scan:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/Scan'
           readOnly: true
       required:
       - code
@@ -5065,10 +5130,13 @@ components:
           format: uuid
           readOnly: true
         properties:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicProperty'
           readOnly: true
         latest_scan:
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/Scan'
           readOnly: true
     PatchedItemProperty:
       type: object
@@ -5118,13 +5186,24 @@ components:
           type: string
           format: date-time
           readOnly: true
-        position:
-          type: string
         owner:
           type: integer
           nullable: true
         item:
           type: integer
+        position:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+          required:
+          - latitude
+          - longitude
+          readOnly: true
     Property:
       type: object
       properties:
@@ -5160,13 +5239,24 @@ components:
           type: string
           format: date-time
           readOnly: true
-        position:
-          type: string
         owner:
           type: integer
           nullable: true
         item:
           type: integer
+        position:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+          required:
+          - latitude
+          - longitude
+          readOnly: true
       required:
       - created_at
       - id

@@ -28,6 +28,7 @@ SECRET_KEY = "django-insecure-m^0qnbdp912uywmyys6nf8sfavf6cr2s8=0@@)0%ex9^j&h)-8
 DEBUG = True
 
 GEOPOSITION_GOOGLE_MAPS_API_KEY = None
+GEOIP_PATH = os.path.join('geoip')
 
 ALLOWED_HOSTS = [
     "localhost",
