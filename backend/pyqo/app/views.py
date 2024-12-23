@@ -1,8 +1,9 @@
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied
 from .models import Item, Scan, Property, ItemProperty
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from .serializers import ItemSerializer, ScanSerializer, PropertySerializer, ItemPropertySerializer, ViewItemSerializer
+from drf_spectacular.utils import extend_schema
+from .serializers import BulkCreateItemsRequestSerializer, BulkCreateItemsResponseSerializer, ItemSerializer, PropertyCreateSerializer, ScanSerializer, PropertySerializer, ItemPropertySerializer, ViewItemSerializer
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,20 +12,23 @@ from .models import Item, Scan
 from .serializers import ItemSerializer
 from django.contrib.gis.geoip2 import GeoIP2
 
-@extend_schema(parameters=[
-    OpenApiParameter(
-            name='id',
-            required=True,
-            location=OpenApiParameter.PATH,
-            type=int
-        )
-])
 class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Unauthenticated users cannot list items.")
         return Item.objects.filter(owner=self.request.user)
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Allow unauthenticated access to individual items if `item.private` is False.
+        """
+        instance = self.get_object()
+        if not request.user.is_authenticated and instance.private:
+            raise PermissionDenied("You do not have permission to access this item.")
+        return super().retrieve(request, *args, **kwargs)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -35,14 +39,6 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-@extend_schema(parameters=[
-    OpenApiParameter(
-            name='id',
-            required=True,
-            location=OpenApiParameter.PATH,
-            type=int
-        )
-])
 class ScanViewSet(viewsets.ModelViewSet):
     serializer_class = ScanSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -54,14 +50,6 @@ class ScanViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-@extend_schema(parameters=[
-    OpenApiParameter(
-            name='id',
-            required=True,
-            location=OpenApiParameter.PATH,
-            type=int
-        )
-])
 class PropertyViewSet(viewsets.ModelViewSet):
     serializer_class = PropertySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -69,18 +57,22 @@ class PropertyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Property.objects.filter(owner=self.request.user)
 
+    def get_serializer_class(self):
+        if self.action == 'create':  # Use the custom serializer for POST
+            return PropertyCreateSerializer
+        return super().get_serializer_class()
+    
+    @extend_schema(
+        request=PropertyCreateSerializer,
+        responses=PropertySerializer
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
-@extend_schema(parameters=[
-    OpenApiParameter(
-            name='id',
-            required=True,
-            location=OpenApiParameter.PATH,
-            type=int
-        )
-])
 class ItemPropertyViewSet(viewsets.ModelViewSet):
     serializer_class = ItemPropertySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -89,7 +81,8 @@ class ItemPropertyViewSet(viewsets.ModelViewSet):
         return ItemProperty.objects.filter(item__owner=self.request.user)
 
 
-class ViewItemView(APIView):
+class ScanItemView(APIView):
+    authentication_classes = []
     serializer_class = ViewItemSerializer
 
     def post(self, request, id):
@@ -103,8 +96,12 @@ class ViewItemView(APIView):
 
         try:
             latitude, longitude = GeoIP2().lat_lon(ip)
-        except Exception as e:
-            return Response(ViewItemSerializer({"success": False}).data, status=status.HTTP_200_OK)
+        except Exception:
+            Scan.objects.create(
+                owner=request.user if request.user.is_authenticated else None,
+                item=item,
+            )
+            return Response(ViewItemSerializer({"success": True}).data, status=status.HTTP_200_OK)
 
         Scan.objects.create(
             owner=request.user if request.user.is_authenticated else None,
@@ -115,3 +112,26 @@ class ViewItemView(APIView):
         response_data = {"success": True}
         serializer = ViewItemSerializer(response_data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+class BulkCreateItemsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        request=BulkCreateItemsRequestSerializer,
+        responses=BulkCreateItemsResponseSerializer,
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = BulkCreateItemsRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        count = serializer.validated_data['count']
+        private = serializer.validated_data.get('private', False)
+
+        items = [Item(owner=request.user, private=private) for _ in range(count)]
+        Item.objects.bulk_create(items)
+
+        response_data = {
+            "message": f"Successfully created {count} items."
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)

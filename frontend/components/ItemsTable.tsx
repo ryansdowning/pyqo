@@ -5,26 +5,46 @@ import { Table, TableProps } from "@mantine/core";
 import { components } from "../schema";
 import { formatDate } from "../utils/format";
 
+const getReadablePositionFromScan = (scan: components["schemas"]["Scan"]) => {
+  if (!scan.position) {
+    return "Unknown location";
+  }
+  if (scan.position.readable) {
+    return scan.position.readable;
+  }
+  return `${scan.position.latitude}, ${scan.position.longitude}`;
+};
+
 export interface ItemsTableProps extends TableProps {
   items: components["schemas"]["Item"][];
 }
 
 export default function ItemsTable({ items, ...props }: ItemsTableProps) {
   const router = useRouter();
-  const rows = items.map((item) => (
-    <Table.Tr
-      key={item.id}
-      onClick={() => router.push(`/codes/${item.id}`)}
-      className="hover:bg-gray-200"
-    >
-      <Table.Td>{item.id}</Table.Td>
-      <Table.Td>{formatDate(item.created_at)}</Table.Td>
-      <Table.Td>
-        {item.latest_scan ? formatDate(item.latest_scan) : "Never scanned"}
-      </Table.Td>
-      <Table.Td>{formatDate(item.updated_at)}</Table.Td>
-    </Table.Tr>
-  ));
+
+  const rows = items.map((item) => {
+    return (
+      <Table.Tr
+        key={item.id}
+        onClick={() => router.push(`/codes/${item.id}`)}
+        className="hover:bg-gray-200"
+      >
+        <Table.Td>{item.id}</Table.Td>
+        <Table.Td>{formatDate(item.created_at)}</Table.Td>
+        <Table.Td>
+          {item.latest_scan
+            ? formatDate(item.latest_scan.created_at)
+            : "Never scanned"}
+        </Table.Td>
+        <Table.Td>
+          {item.latest_scan
+            ? getReadablePositionFromScan(item.latest_scan)
+            : "Never scanned"}
+        </Table.Td>
+        <Table.Td>{formatDate(item.updated_at)}</Table.Td>
+      </Table.Tr>
+    );
+  });
 
   return (
     <Table {...props}>
@@ -33,6 +53,7 @@ export default function ItemsTable({ items, ...props }: ItemsTableProps) {
           <Table.Th>ID</Table.Th>
           <Table.Th>Created</Table.Th>
           <Table.Th>Last Scanned</Table.Th>
+          <Table.Th>Last Location</Table.Th>
           <Table.Th>Last Updated</Table.Th>
         </Table.Tr>
       </Table.Thead>

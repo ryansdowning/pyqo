@@ -7,6 +7,7 @@ class Item(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey("auth.User", related_name="items", on_delete=models.CASCADE)
     code = models.UUIDField(default=uuid4, editable=False)
+    private = models.BooleanField(default=False)
 
 class Scan(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,7 +19,7 @@ class Scan(models.Model):
         blank=True
     )
     item = models.ForeignKey(Item, related_name="scans", on_delete=models.CASCADE)
-    position = GeopositionField()
+    position = GeopositionField(blank=True, null=True)
 
 class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

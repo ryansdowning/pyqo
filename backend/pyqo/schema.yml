@@ -4,15 +4,119 @@ info:
   version: 0.0.1
   description: pyqo
 paths:
+  /app/bulk-create-items/:
+    post:
+      operationId: app_bulk_create_items_create
+      tags:
+      - app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkCreateItemsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BulkCreateItemsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkCreateItemsRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppBulkCreateItemsCreateErrorResponse400'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse401'
+              examples:
+                AuthenticationFailed:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: authentication_failed
+                      detail: Incorrect authentication credentials.
+                      attr: null
+                NotAuthenticated:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_authenticated
+                      detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '405':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse405'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: method_not_allowed
+                      detail: Method "get" not allowed.
+                      attr: null
+          description: ''
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse406'
+              examples:
+                NotAcceptable:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: not_acceptable
+                      detail: Could not satisfy the request Accept header.
+                      attr: null
+          description: ''
+        '415':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse415'
+              examples:
+                UnsupportedMediaType:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: unsupported_media_type
+                      detail: Unsupported media type "application/json" in request.
+                      attr: null
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse500'
+              examples:
+                APIException:
+                  value:
+                    type: server_error
+                    errors:
+                    - code: error
+                      detail: A server error occurred.
+                      attr: null
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCreateItemsResponse'
+          description: ''
   /app/item-properties/:
     get:
       operationId: app_item_properties_list
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       - name: page
         required: false
         in: query
@@ -129,12 +233,6 @@ paths:
           description: ''
     post:
       operationId: app_item_properties_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       tags:
       - app
       requestBody:
@@ -262,7 +360,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -378,7 +476,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -506,7 +604,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -633,7 +731,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -743,11 +841,6 @@ paths:
     get:
       operationId: app_items_list
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       - name: page
         required: false
         in: query
@@ -758,6 +851,7 @@ paths:
       - app
       security:
       - tokenAuth: []
+      - {}
       responses:
         '400':
           content:
@@ -784,6 +878,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -864,12 +972,6 @@ paths:
           description: ''
     post:
       operationId: app_items_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       tags:
       - app
       requestBody:
@@ -912,6 +1014,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -990,9 +1106,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Item'
           description: ''
-  /app/items/{id}/view/:
+  /app/items/{id}/scan/:
     post:
-      operationId: app_items_view_create
+      operationId: app_items_scan_create
       parameters:
       - in: path
         name: id
@@ -1014,35 +1130,13 @@ paths:
               $ref: '#/components/schemas/ViewItem'
         required: true
       security:
-      - tokenAuth: []
       - {}
       responses:
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppItemsViewCreateErrorResponse400'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse401'
-              examples:
-                AuthenticationFailed:
-                  value:
-                    type: client_error
-                    errors:
-                    - code: authentication_failed
-                      detail: Incorrect authentication credentials.
-                      attr: null
-                NotAuthenticated:
-                  value:
-                    type: client_error
-                    errors:
-                    - code: not_authenticated
-                      detail: Authentication credentials were not provided.
-                      attr: null
+                $ref: '#/components/schemas/AppItemsScanCreateErrorResponse400'
           description: ''
         '404':
           content:
@@ -1123,16 +1217,19 @@ paths:
   /app/items/{id}/:
     get:
       operationId: app_items_retrieve
+      description: Allow unauthenticated access to individual items if `item.private`
+        is False.
       parameters:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
       security:
       - tokenAuth: []
+      - {}
       responses:
         '400':
           content:
@@ -1159,6 +1256,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -1243,7 +1354,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -1287,6 +1398,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -1371,7 +1496,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -1414,6 +1539,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -1498,7 +1637,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -1530,6 +1669,20 @@ paths:
                     errors:
                     - code: not_authenticated
                       detail: Authentication credentials were not provided.
+                      attr: null
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse403'
+              examples:
+                PermissionDenied:
+                  value:
+                    type: client_error
+                    errors:
+                    - code: permission_denied
+                      detail: You do not have permission to perform this action.
                       attr: null
           description: ''
         '404':
@@ -1608,11 +1761,6 @@ paths:
     get:
       operationId: app_properties_list
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       - name: page
         required: false
         in: query
@@ -1729,25 +1877,19 @@ paths:
           description: ''
     post:
       operationId: app_properties_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       tags:
       - app
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Property'
+              $ref: '#/components/schemas/PropertyCreate'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Property'
+              $ref: '#/components/schemas/PropertyCreate'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Property'
+              $ref: '#/components/schemas/PropertyCreate'
         required: true
       security:
       - tokenAuth: []
@@ -1862,7 +2004,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -1978,7 +2120,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2106,7 +2248,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2233,7 +2375,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2343,11 +2485,6 @@ paths:
     get:
       operationId: app_scans_list
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       - name: page
         required: false
         in: query
@@ -2464,12 +2601,6 @@ paths:
           description: ''
     post:
       operationId: app_scans_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
       tags:
       - app
       requestBody:
@@ -2597,7 +2728,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2713,7 +2844,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2841,7 +2972,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -2968,7 +3099,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - app
@@ -3260,6 +3391,110 @@ paths:
           description: ''
 components:
   schemas:
+    AppBulkCreateItemsCreateCountErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - count
+          type: string
+          description: '* `count` - count'
+        code:
+          enum:
+          - invalid
+          - max_string_length
+          - min_value
+          - 'null'
+          - required
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `max_string_length` - max_string_length
+            * `min_value` - min_value
+            * `null` - null
+            * `required` - required
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppBulkCreateItemsCreateError:
+      oneOf:
+      - $ref: '#/components/schemas/AppBulkCreateItemsCreateNonFieldErrorsErrorComponent'
+      - $ref: '#/components/schemas/AppBulkCreateItemsCreateCountErrorComponent'
+      - $ref: '#/components/schemas/AppBulkCreateItemsCreatePrivateErrorComponent'
+      discriminator:
+        propertyName: attr
+        mapping:
+          non_field_errors: '#/components/schemas/AppBulkCreateItemsCreateNonFieldErrorsErrorComponent'
+          count: '#/components/schemas/AppBulkCreateItemsCreateCountErrorComponent'
+          private: '#/components/schemas/AppBulkCreateItemsCreatePrivateErrorComponent'
+    AppBulkCreateItemsCreateErrorResponse400:
+      oneOf:
+      - $ref: '#/components/schemas/AppBulkCreateItemsCreateValidationError'
+      - $ref: '#/components/schemas/ParseErrorResponse'
+      discriminator:
+        propertyName: type
+        mapping:
+          validation_error: '#/components/schemas/AppBulkCreateItemsCreateValidationError'
+          client_error: '#/components/schemas/ParseErrorResponse'
+    AppBulkCreateItemsCreateNonFieldErrorsErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - non_field_errors
+          type: string
+          description: '* `non_field_errors` - non_field_errors'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppBulkCreateItemsCreatePrivateErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - private
+          type: string
+          description: '* `private` - private'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppBulkCreateItemsCreateValidationError:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ValidationErrorEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppBulkCreateItemsCreateError'
+      required:
+      - errors
+      - type
     AppItemPropertiesCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppItemPropertiesCreateNonFieldErrorsErrorComponent'
@@ -3687,11 +3922,13 @@ components:
       oneOf:
       - $ref: '#/components/schemas/AppItemsCreateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppItemsCreateOwnerErrorComponent'
+      - $ref: '#/components/schemas/AppItemsCreatePrivateErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppItemsCreateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppItemsCreateOwnerErrorComponent'
+          private: '#/components/schemas/AppItemsCreatePrivateErrorComponent'
     AppItemsCreateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppItemsCreateValidationError'
@@ -3749,6 +3986,28 @@ components:
       - attr
       - code
       - detail
+    AppItemsCreatePrivateErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - private
+          type: string
+          description: '* `private` - private'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppItemsCreateValidationError:
       type: object
       properties:
@@ -3779,11 +4038,13 @@ components:
       oneOf:
       - $ref: '#/components/schemas/AppItemsPartialUpdateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppItemsPartialUpdateOwnerErrorComponent'
+      - $ref: '#/components/schemas/AppItemsPartialUpdatePrivateErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppItemsPartialUpdateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppItemsPartialUpdateOwnerErrorComponent'
+          private: '#/components/schemas/AppItemsPartialUpdatePrivateErrorComponent'
     AppItemsPartialUpdateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppItemsPartialUpdateValidationError'
@@ -3841,6 +4102,28 @@ components:
       - attr
       - code
       - detail
+    AppItemsPartialUpdatePrivateErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - private
+          type: string
+          description: '* `private` - private'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppItemsPartialUpdateValidationError:
       type: object
       properties:
@@ -3860,15 +4143,93 @@ components:
         propertyName: type
         mapping:
           client_error: '#/components/schemas/ParseErrorResponse'
+    AppItemsScanCreateError:
+      oneOf:
+      - $ref: '#/components/schemas/AppItemsScanCreateNonFieldErrorsErrorComponent'
+      - $ref: '#/components/schemas/AppItemsScanCreateSuccessErrorComponent'
+      discriminator:
+        propertyName: attr
+        mapping:
+          non_field_errors: '#/components/schemas/AppItemsScanCreateNonFieldErrorsErrorComponent'
+          success: '#/components/schemas/AppItemsScanCreateSuccessErrorComponent'
+    AppItemsScanCreateErrorResponse400:
+      oneOf:
+      - $ref: '#/components/schemas/AppItemsScanCreateValidationError'
+      - $ref: '#/components/schemas/ParseErrorResponse'
+      discriminator:
+        propertyName: type
+        mapping:
+          validation_error: '#/components/schemas/AppItemsScanCreateValidationError'
+          client_error: '#/components/schemas/ParseErrorResponse'
+    AppItemsScanCreateNonFieldErrorsErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - non_field_errors
+          type: string
+          description: '* `non_field_errors` - non_field_errors'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppItemsScanCreateSuccessErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - success
+          type: string
+          description: '* `success` - success'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          - required
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+            * `required` - required
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
+    AppItemsScanCreateValidationError:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ValidationErrorEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppItemsScanCreateError'
+      required:
+      - errors
+      - type
     AppItemsUpdateError:
       oneOf:
       - $ref: '#/components/schemas/AppItemsUpdateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppItemsUpdateOwnerErrorComponent'
+      - $ref: '#/components/schemas/AppItemsUpdatePrivateErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppItemsUpdateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppItemsUpdateOwnerErrorComponent'
+          private: '#/components/schemas/AppItemsUpdatePrivateErrorComponent'
     AppItemsUpdateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppItemsUpdateValidationError'
@@ -3926,6 +4287,28 @@ components:
       - attr
       - code
       - detail
+    AppItemsUpdatePrivateErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - private
+          type: string
+          description: '* `private` - private'
+        code:
+          enum:
+          - invalid
+          - 'null'
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `null` - null
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppItemsUpdateValidationError:
       type: object
       properties:
@@ -3938,93 +4321,15 @@ components:
       required:
       - errors
       - type
-    AppItemsViewCreateError:
-      oneOf:
-      - $ref: '#/components/schemas/AppItemsViewCreateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppItemsViewCreateSuccessErrorComponent'
-      discriminator:
-        propertyName: attr
-        mapping:
-          non_field_errors: '#/components/schemas/AppItemsViewCreateNonFieldErrorsErrorComponent'
-          success: '#/components/schemas/AppItemsViewCreateSuccessErrorComponent'
-    AppItemsViewCreateErrorResponse400:
-      oneOf:
-      - $ref: '#/components/schemas/AppItemsViewCreateValidationError'
-      - $ref: '#/components/schemas/ParseErrorResponse'
-      discriminator:
-        propertyName: type
-        mapping:
-          validation_error: '#/components/schemas/AppItemsViewCreateValidationError'
-          client_error: '#/components/schemas/ParseErrorResponse'
-    AppItemsViewCreateNonFieldErrorsErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - non_field_errors
-          type: string
-          description: '* `non_field_errors` - non_field_errors'
-        code:
-          enum:
-          - invalid
-          - 'null'
-          type: string
-          description: |-
-            * `invalid` - invalid
-            * `null` - null
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppItemsViewCreateSuccessErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - success
-          type: string
-          description: '* `success` - success'
-        code:
-          enum:
-          - invalid
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `invalid` - invalid
-            * `null` - null
-            * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppItemsViewCreateValidationError:
-      type: object
-      properties:
-        type:
-          $ref: '#/components/schemas/ValidationErrorEnum'
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppItemsViewCreateError'
-      required:
-      - errors
-      - type
     AppPropertiesCreateError:
       oneOf:
       - $ref: '#/components/schemas/AppPropertiesCreateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppPropertiesCreateLabelErrorComponent'
-      - $ref: '#/components/schemas/AppPropertiesCreateOwnerErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppPropertiesCreateNonFieldErrorsErrorComponent'
           label: '#/components/schemas/AppPropertiesCreateLabelErrorComponent'
-          owner: '#/components/schemas/AppPropertiesCreateOwnerErrorComponent'
     AppPropertiesCreateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppPropertiesCreateValidationError'
@@ -4078,38 +4383,10 @@ components:
           enum:
           - invalid
           - 'null'
-          - unique
           type: string
           description: |-
             * `invalid` - invalid
             * `null` - null
-            * `unique` - unique
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppPropertiesCreateOwnerErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - owner
-          type: string
-          description: '* `owner` - owner'
-        code:
-          enum:
-          - does_not_exist
-          - incorrect_type
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `does_not_exist` - does_not_exist
-            * `incorrect_type` - incorrect_type
-            * `null` - null
-            * `required` - required
         detail:
           type: string
       required:
@@ -4720,6 +4997,27 @@ components:
       - password
       - token
       - username
+    BulkCreateItemsRequest:
+      type: object
+      properties:
+        count:
+          type: integer
+          minimum: 1
+          description: Number of items to create (must be a positive integer).
+        private:
+          type: boolean
+          default: false
+          description: Set the default value of the 'private' field for the created
+            items.
+      required:
+      - count
+    BulkCreateItemsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
     ClientErrorEnum:
       enum:
       - client_error
@@ -4739,6 +5037,20 @@ components:
       properties:
         code:
           $ref: '#/components/schemas/ErrorCode401Enum'
+        detail:
+          type: string
+        attr:
+          type: string
+          nullable: true
+      required:
+      - attr
+      - code
+      - detail
+    Error403:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode403Enum'
         detail:
           type: string
         attr:
@@ -4826,6 +5138,11 @@ components:
       description: |-
         * `authentication_failed` - Authentication Failed
         * `not_authenticated` - Not Authenticated
+    ErrorCode403Enum:
+      enum:
+      - permission_denied
+      type: string
+      description: '* `permission_denied` - Permission Denied'
     ErrorCode404Enum:
       enum:
       - not_found
@@ -4860,6 +5177,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error401'
+      required:
+      - errors
+      - type
+    ErrorResponse403:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ClientErrorEnum'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error403'
       required:
       - errors
       - type
@@ -4939,6 +5268,8 @@ components:
           readOnly: true
         owner:
           type: integer
+        private:
+          type: boolean
         code:
           type: string
           format: uuid
@@ -5125,6 +5456,8 @@ components:
           readOnly: true
         owner:
           type: integer
+        private:
+          type: boolean
         code:
           type: string
           format: uuid
@@ -5193,16 +5526,17 @@ components:
           type: integer
         position:
           type: object
+          nullable: true
           properties:
             latitude:
               type: number
-              format: double
+              format: float
             longitude:
               type: number
-              format: double
-          required:
-          - latitude
-          - longitude
+              format: float
+            readable:
+              type: string
+              nullable: true
           readOnly: true
     Property:
       type: object
@@ -5229,6 +5563,14 @@ components:
       - label
       - owner
       - updated_at
+    PropertyCreate:
+      type: object
+      properties:
+        label:
+          type: string
+          maxLength: 255
+      required:
+      - label
     Scan:
       type: object
       properties:
@@ -5246,16 +5588,17 @@ components:
           type: integer
         position:
           type: object
+          nullable: true
           properties:
             latitude:
               type: number
-              format: double
+              format: float
             longitude:
               type: number
-              format: double
-          required:
-          - latitude
-          - longitude
+              format: float
+            readable:
+              type: string
+              nullable: true
           readOnly: true
       required:
       - created_at

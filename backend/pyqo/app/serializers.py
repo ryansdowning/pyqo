@@ -1,7 +1,9 @@
-from typing import TypedDict
+from typing import TypedDict, Union
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from .models import Item, Scan, Property, ItemProperty
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 class DynamicPropertySerializer(serializers.ModelSerializer):
     label = serializers.CharField(source="property.label")
@@ -14,6 +16,7 @@ class DynamicPropertySerializer(serializers.ModelSerializer):
 class Position(TypedDict):
     latitude: float
     longitude: float
+    readable: Union[str, None]
 
 class ScanSerializer(serializers.ModelSerializer):
     position = serializers.SerializerMethodField()
@@ -22,15 +25,43 @@ class ScanSerializer(serializers.ModelSerializer):
         model = Scan
         fields = ['id', 'created_at', 'owner', 'item', 'position']
 
-    def get_position(self, obj) -> Position :
+    @extend_schema_field({
+        "type": "object",
+        "nullable": True,
+        "properties": {
+            "latitude": {"type": "number", "format": "float"},
+            "longitude": {"type": "number", "format": "float"},
+            "readable": {"type": "string", "nullable": True}
+        }
+    })
+    def get_position(self, obj) -> Union[Position, None]:
+        if not obj.position:
+            return None
         latitude, longitude = obj.position.latitude, obj.position.longitude
-        return {'latitude': latitude, 'longitude': longitude}
+
+        geolocator = Nominatim(user_agent="geo_formatter")
+        readable = None
+        try:
+            location = geolocator.reverse((obj.position.latitude, obj.position.longitude), timeout=10)
+            if location and location.raw.get("address"):
+                address = location.raw["address"]
+                city = address.get("city") or address.get("town") or address.get("village")
+                country_code = address.get("country_code", "").upper()
+                if city and country_code:
+                    readable =  f"{city}, {country_code}"
+        except GeocoderTimedOut:
+            pass
+        return {'latitude': latitude, 'longitude': longitude, "readable": readable}
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = "__all__"
 
+class PropertyCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Property
+        fields = ['label']
 
 class ItemPropertySerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,7 +80,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'created_at', 'updated_at', 'owner', 'code', 'properties', 'latest_scan']
+        fields = ['id', 'created_at', 'updated_at', 'owner', 'private', 'code', 'properties', 'latest_scan']
 
     @extend_schema_field(DynamicPropertySerializer(many=True))
     def get_properties(self, obj):
@@ -72,3 +103,18 @@ class ItemSerializer(serializers.ModelSerializer):
         if latest_scan:
             return ScanSerializer(latest_scan).data
         return None
+
+
+class BulkCreateItemsRequestSerializer(serializers.Serializer):
+    count = serializers.IntegerField(
+        min_value=1,
+        help_text="Number of items to create (must be a positive integer)."
+    )
+    private = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="Set the default value of the 'private' field for the created items."
+    )
+
+class BulkCreateItemsResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()

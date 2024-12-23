@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "../styles/global.css";
 
+import { AppProps } from "next/app";
 import Head from "next/head";
 
 import { MantineProvider } from "@mantine/core";
@@ -11,9 +12,11 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { useTheme } from "../theme";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 1000 * 60 * 5 } },
+});
 
-export default function App({ Component, pageProps }: any) {
+export default function App({ Component, pageProps }: AppProps) {
   const { theme } = useTheme();
 
   return (

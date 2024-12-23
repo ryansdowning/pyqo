@@ -1,14 +1,19 @@
-import { useState } from "react";
-
 import { useRouter } from "next/router";
 
-import { components } from "../../../schema";
+import { PyqoLayout } from "../../../components/PyqoLayout";
+import { api } from "../../../utils/backend";
 
-export default function CodePage() {
+export default function ManageItemPage() {
   const router = useRouter();
   const { id } = router.query;
-  const [fetching, setFetching] = useState(true);
-  const [item, setItem] = useState<components["schemas"]["Item"] | null>(null);
+  const { data: itemData } = api.useQuery("get", "/app/items/{id}/", {
+    params: { path: { id: id as string } },
+    enabled: Boolean(id),
+  });
 
-  return <div>Edit item {id}</div>;
+  return (
+    <PyqoLayout>
+      <div>Managing item {id}</div>
+    </PyqoLayout>
+  );
 }
