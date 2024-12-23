@@ -32,6 +32,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
+        context['all_properties'] = self.request.query_params.get('all_properties', False) == 'true'
         context['property_labels'] = self.request.query_params.getlist('property_labels')
         return context
 
@@ -42,9 +43,10 @@ class ItemViewSet(viewsets.ModelViewSet):
 class ScanViewSet(viewsets.ModelViewSet):
     serializer_class = ScanSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ['item']
 
     def get_queryset(self):
-        return Scan.objects.filter(owner=self.request.user)
+        return Scan.objects.filter(item__owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

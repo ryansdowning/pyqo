@@ -84,8 +84,11 @@ class ItemSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(DynamicPropertySerializer(many=True))
     def get_properties(self, obj):
+        all_properties = self.context.get('all_properties', False)
+        if all_properties:
+            return DynamicPropertySerializer(obj.properties.all(), many=True).data
+        
         property_labels = self.context.get('property_labels', None)
-
         if not property_labels:
             return []
 

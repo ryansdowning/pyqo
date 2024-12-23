@@ -3,17 +3,7 @@ import { useRouter } from "next/router";
 import { Table, TableProps } from "@mantine/core";
 
 import { components } from "../schema";
-import { formatDate } from "../utils/format";
-
-const getReadablePositionFromScan = (scan: components["schemas"]["Scan"]) => {
-  if (!scan.position) {
-    return "Unknown location";
-  }
-  if (scan.position.readable) {
-    return scan.position.readable;
-  }
-  return `${scan.position.latitude}, ${scan.position.longitude}`;
-};
+import { formatDate, getReadablePositionFromScan } from "../utils/format";
 
 export interface ItemsTableProps extends TableProps {
   items: components["schemas"]["Item"][];
