@@ -8,8 +8,10 @@ import {
   Menu,
   Modal,
   ModalProps,
+  Switch,
   TextInput,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 
 import { components } from "../schema";
@@ -76,6 +78,32 @@ function EditItemModal({ id, properties, ...props }: EditItemModalProps) {
     "/app/properties/"
   );
   const propertiesPage = propertiesData?.results ?? [];
+  const updateItem = api.useMutation("patch", "/app/items/{id}/", {
+    onSuccess: () => {
+      notifications.show({
+        title: "Success",
+        message: "Item saved!",
+        color: "green",
+      });
+      props.onClose?.();
+    },
+    onError: () => {
+      notifications.show({
+        title: "Error",
+        message: "Item failed to save.",
+        color: "red",
+      });
+    },
+  });
+
+  const saveProperties = () => {
+    updateItem.mutate({
+      params: { path: { id } },
+      body: {
+        properties: draftProperties,
+      },
+    });
+  };
 
   return (
     <Modal title="Editing item" {...props}>
@@ -106,10 +134,12 @@ function EditItemModal({ id, properties, ...props }: EditItemModalProps) {
             : "No properties"}
         </div>
         <div className="flex gap-2">
-          <Button radius="md">Save</Button>
+          <Button radius="md" onClick={saveProperties}>
+            Save
+          </Button>
           <Menu radius="md">
             <Menu.Target>
-              <Button radius="md" variant="outline">
+              <Button radius="md" variant="outline" loading={isLoading}>
                 Add property
               </Button>
             </Menu.Target>
@@ -163,6 +193,25 @@ export default function ItemPage({ item, scans }: ItemPageProps) {
   const isAuthenticated = useIsAuthenticated();
   const [editOpen, setEditOpen] = useState(false);
   const isViewPage = router.pathname === "/codes/[id]/view";
+  const [isPrivate, setIsPrivate] = useState(item.private ?? false);
+
+  const updateItem = api.useMutation("patch", "/app/items/{id}/", {
+    onSuccess: (updatedItem) => {
+      setIsPrivate(updatedItem.private ?? false);
+      notifications.show({
+        title: "Success",
+        message: "Privacy updated!",
+        color: "green",
+      });
+    },
+    onError: (f) => {
+      notifications.show({
+        title: "Error",
+        message: "Privacy failed to save.",
+        color: "red",
+      });
+    },
+  });
 
   const mapRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -240,6 +289,19 @@ export default function ItemPage({ item, scans }: ItemPageProps) {
             )
           </h3>
           <div className="space-y-2">
+            {isAuthenticated && (
+              <Switch
+                checked={isPrivate}
+                label="Private"
+                disabled={updateItem.isPending}
+                onChange={(e) =>
+                  updateItem.mutate({
+                    params: { path: { id: item.id.toString() } },
+                    body: { private: e.currentTarget.checked },
+                  })
+                }
+              />
+            )}
             <div className="bg-gray-200 rounded-md p-2 flex-flex-col space-y-2">
               {item?.properties.map((property) => (
                 <PropertyCard key={property.id} property={property} />

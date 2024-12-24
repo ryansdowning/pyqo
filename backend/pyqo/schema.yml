@@ -1217,8 +1217,6 @@ paths:
   /app/items/{id}/:
     get:
       operationId: app_items_retrieve
-      description: Allow unauthenticated access to individual items if `item.private`
-        is False.
       parameters:
       - in: path
         name: id
@@ -1350,6 +1348,7 @@ paths:
           description: ''
     put:
       operationId: app_items_update
+      description: Update an item and its related properties.
       parameters:
       - in: path
         name: id
@@ -1373,12 +1372,6 @@ paths:
       security:
       - tokenAuth: []
       responses:
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AppItemsUpdateErrorResponse400'
-          description: ''
         '401':
           content:
             application/json:
@@ -1489,6 +1482,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Validation errors.
           description: ''
     patch:
       operationId: app_items_partial_update
@@ -4216,108 +4215,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AppItemsScanCreateError'
-      required:
-      - errors
-      - type
-    AppItemsUpdateError:
-      oneOf:
-      - $ref: '#/components/schemas/AppItemsUpdateNonFieldErrorsErrorComponent'
-      - $ref: '#/components/schemas/AppItemsUpdateOwnerErrorComponent'
-      - $ref: '#/components/schemas/AppItemsUpdatePrivateErrorComponent'
-      discriminator:
-        propertyName: attr
-        mapping:
-          non_field_errors: '#/components/schemas/AppItemsUpdateNonFieldErrorsErrorComponent'
-          owner: '#/components/schemas/AppItemsUpdateOwnerErrorComponent'
-          private: '#/components/schemas/AppItemsUpdatePrivateErrorComponent'
-    AppItemsUpdateErrorResponse400:
-      oneOf:
-      - $ref: '#/components/schemas/AppItemsUpdateValidationError'
-      - $ref: '#/components/schemas/ParseErrorResponse'
-      discriminator:
-        propertyName: type
-        mapping:
-          validation_error: '#/components/schemas/AppItemsUpdateValidationError'
-          client_error: '#/components/schemas/ParseErrorResponse'
-    AppItemsUpdateNonFieldErrorsErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - non_field_errors
-          type: string
-          description: '* `non_field_errors` - non_field_errors'
-        code:
-          enum:
-          - invalid
-          - 'null'
-          type: string
-          description: |-
-            * `invalid` - invalid
-            * `null` - null
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppItemsUpdateOwnerErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - owner
-          type: string
-          description: '* `owner` - owner'
-        code:
-          enum:
-          - does_not_exist
-          - incorrect_type
-          - 'null'
-          - required
-          type: string
-          description: |-
-            * `does_not_exist` - does_not_exist
-            * `incorrect_type` - incorrect_type
-            * `null` - null
-            * `required` - required
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppItemsUpdatePrivateErrorComponent:
-      type: object
-      properties:
-        attr:
-          enum:
-          - private
-          type: string
-          description: '* `private` - private'
-        code:
-          enum:
-          - invalid
-          - 'null'
-          type: string
-          description: |-
-            * `invalid` - invalid
-            * `null` - null
-        detail:
-          type: string
-      required:
-      - attr
-      - code
-      - detail
-    AppItemsUpdateValidationError:
-      type: object
-      properties:
-        type:
-          $ref: '#/components/schemas/ValidationErrorEnum'
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppItemsUpdateError'
       required:
       - errors
       - type

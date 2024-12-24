@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 from .models import Item, Scan, Property, ItemProperty
 from drf_spectacular.utils import extend_schema
-from .serializers import BulkCreateItemsRequestSerializer, BulkCreateItemsResponseSerializer, ItemSerializer, PropertyCreateSerializer, ScanSerializer, PropertySerializer, ItemPropertySerializer, ViewItemSerializer
+from .serializers import BulkCreateItemsRequestSerializer, BulkCreateItemsResponseSerializer, ItemSerializer, PropertyCreateSerializer, ScanSerializer, PropertySerializer, ItemPropertySerializer, ViewItemSerializer, DynamicPropertySerializer
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -23,9 +23,6 @@ class ItemViewSet(viewsets.ModelViewSet):
         return Item.objects.filter(owner=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
-        """
-        Allow unauthenticated access to individual items if `item.private` is False.
-        """
         instance = self.get_object()
         if not request.user.is_authenticated and instance.private:
             raise PermissionDenied("You do not have permission to access this item.")
@@ -39,6 +36,42 @@ class ItemViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @extend_schema(
+        description="Update an item and its related properties.",
+        request=ItemSerializer,
+        responses={
+            200: ItemSerializer,
+            400: {"description": "Validation errors."},
+        },
+    )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        partial = kwargs.pop('partial', False)
+        item_serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        item_serializer.is_valid(raise_exception=True)
+        self.perform_update(item_serializer)
+
+        properties_data = request.data.get('properties', [])
+        for property_data in properties_data:
+            property_serializer = DynamicPropertySerializer(data=property_data)
+            property_serializer.is_valid(raise_exception=True)
+
+            property_id = property_serializer.validated_data['property']['id']
+            value = property_serializer.validated_data['value']
+
+            try:
+                property_instance = Property.objects.get(id=property_id)
+                ItemProperty.objects.update_or_create(
+                    item=instance,
+                    property=property_instance,
+                    defaults={"value": value},
+                )
+            except Property.DoesNotExist:
+                raise ValidationError({"detail": f"Property with id {property_id} does not exist."})
+
+        return Response(item_serializer.data, status=status.HTTP_200_OK)
 
 
 class ScanViewSet(viewsets.ModelViewSet):

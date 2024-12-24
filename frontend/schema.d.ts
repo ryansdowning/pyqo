@@ -91,8 +91,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Allow unauthenticated access to individual items if `item.private` is False. */
         get: operations["app_items_retrieve"];
+        /** @description Update an item and its related properties. */
         put: operations["app_items_update"];
         post?: never;
         delete: operations["app_items_destroy"];
@@ -624,60 +624,6 @@ export interface components {
              */
             type: "validation_error";
             errors: components["schemas"]["AppItemsScanCreateError"][];
-        };
-        AppItemsUpdateError: components["schemas"]["AppItemsUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppItemsUpdateOwnerErrorComponent"] | components["schemas"]["AppItemsUpdatePrivateErrorComponent"];
-        AppItemsUpdateErrorResponse400: components["schemas"]["AppItemsUpdateValidationError"] | components["schemas"]["ParseErrorResponse"];
-        AppItemsUpdateNonFieldErrorsErrorComponent: {
-            /**
-             * @description * `non_field_errors` - non_field_errors (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "non_field_errors";
-            /**
-             * @description * `invalid` - invalid
-             *     * `null` - null
-             * @enum {string}
-             */
-            code: "invalid" | "null";
-            detail: string;
-        };
-        AppItemsUpdateOwnerErrorComponent: {
-            /**
-             * @description * `owner` - owner (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "owner";
-            /**
-             * @description * `does_not_exist` - does_not_exist
-             *     * `incorrect_type` - incorrect_type
-             *     * `null` - null
-             *     * `required` - required
-             * @enum {string}
-             */
-            code: "does_not_exist" | "incorrect_type" | "null" | "required";
-            detail: string;
-        };
-        AppItemsUpdatePrivateErrorComponent: {
-            /**
-             * @description * `private` - private (enum property replaced by openapi-typescript)
-             * @enum {string}
-             */
-            attr: "private";
-            /**
-             * @description * `invalid` - invalid
-             *     * `null` - null
-             * @enum {string}
-             */
-            code: "invalid" | "null";
-            detail: string;
-        };
-        AppItemsUpdateValidationError: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            type: "validation_error";
-            errors: components["schemas"]["AppItemsUpdateError"][];
         };
         AppPropertiesCreateError: components["schemas"]["AppPropertiesCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppPropertiesCreateLabelErrorComponent"];
         AppPropertiesCreateErrorResponse400: components["schemas"]["AppPropertiesCreateValidationError"] | components["schemas"]["ParseErrorResponse"];
@@ -2359,7 +2305,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AppItemsUpdateErrorResponse400"];
+                    "application/json": unknown;
                 };
             };
             401: {
