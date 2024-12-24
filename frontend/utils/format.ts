@@ -17,8 +17,8 @@ export const getReadablePositionFromScan = (
   if (!scan.position) {
     return "Unknown location";
   }
-  if (scan.position.readable) {
-    return scan.position.readable;
+  if (scan.readable_location) {
+    return scan.readable_location;
   }
   return `${scan.position.latitude}, ${scan.position.longitude}`;
 };

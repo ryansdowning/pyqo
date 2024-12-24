@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from .models import Item, Scan
 from .serializers import ItemSerializer
 from django.contrib.gis.geoip2 import GeoIP2
+from geopy.geocoders import Nominatim
 
 class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
@@ -96,19 +97,37 @@ class ScanItemView(APIView):
         else:
             ip = request.META.get('REMOTE_ADDR')
 
-        try:
-            latitude, longitude = GeoIP2().lat_lon(ip)
-        except Exception:
-            Scan.objects.create(
-                owner=request.user if request.user.is_authenticated else None,
-                item=item,
-            )
-            return Response(ViewItemSerializer({"success": True}).data, status=status.HTTP_200_OK)
+        latitude = request.data.get('latitude')
+        longitude = request.data.get('longitude')
+        if latitude and longitude:
+            try:
+                geolocator = Nominatim(user_agent="pyqo")
+                location = geolocator.reverse((latitude, longitude), timeout=10)
+                address = location.raw["address"]
+                city = address.get("city") or address.get("town") or address.get("village")
+                country_code = address.get("country_code", "").upper()
+                readable_location = f"{city}, {country_code}"
+                print(readable_location)
+            except:
+                readable_location = None
+        else:
+            try:
+                result = GeoIP2().city(ip)
+                latitude = result['latitude']
+                longitude = result['longitude']
+                readable_location = f"{result['city']}, {result['country_code']}"
+            except Exception:
+                Scan.objects.create(
+                    owner=request.user if request.user.is_authenticated else None,
+                    item=item,
+                )
+                return Response(ViewItemSerializer({"success": True}).data, status=status.HTTP_200_OK)
 
         Scan.objects.create(
             owner=request.user if request.user.is_authenticated else None,
             item=item,
             position=f"{latitude},{longitude}",
+            readable_location=readable_location,
         )
 
         response_data = {"success": True}

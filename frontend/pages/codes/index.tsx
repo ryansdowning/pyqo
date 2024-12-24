@@ -16,6 +16,7 @@ import { notifications } from "@mantine/notifications";
 import ItemsTable from "../../components/ItemsTable";
 import { PyqoLayout } from "../../components/PyqoLayout";
 import { api, PAGE_SIZE } from "../../utils/backend";
+import { getItemQRCodeValue, printQRCodes } from "../../utils/qr-codes";
 
 export default function CodesPage() {
   const [page, setPage] = useState(1);
@@ -28,6 +29,7 @@ export default function CodesPage() {
     query: { page },
   });
   const totalItems = itemsPage?.count ?? 0;
+  const [selectedItemIds, setSelectedItemIds] = useState<number[]>([]);
 
   const [groupSize, setGroupSize] = useState<
     "1" | "5" | "10" | "25" | "50" | "100" | "custom"
@@ -120,14 +122,70 @@ export default function CodesPage() {
             </Stack>
           </Modal>
           <Stack gap="sm" m="lg">
-            <Button
-              w="fit-content"
-              radius="md"
-              onClick={() => setCreateOpen(true)}
-            >
-              Create codes
-            </Button>
-            <ItemsTable items={itemsPage?.results ?? []} withColumnBorders />
+            <div className="flex gap-2">
+              <Button
+                w="fit-content"
+                radius="md"
+                onClick={() => setCreateOpen(true)}
+              >
+                Create codes
+              </Button>
+              {selectedItemIds.length > 0 && (
+                <>
+                  <Button
+                    radius="md"
+                    variant="outline"
+                    onClick={() =>
+                      printQRCodes(
+                        selectedItemIds.map((id) =>
+                          getItemQRCodeValue(
+                            itemsPage?.results.find((item) => item.id === id)!
+                          )
+                        )
+                      )
+                    }
+                  >
+                    Print {selectedItemIds.length} code
+                    {selectedItemIds.length > 1 ? "s" : ""}
+                  </Button>
+                  <Button
+                    radius="md"
+                    variant="transparent"
+                    onClick={() => {
+                      if (
+                        selectedItemIds.length === itemsPage?.results.length
+                      ) {
+                        setSelectedItemIds([]);
+                      } else {
+                        setSelectedItemIds(
+                          itemsPage?.results.map((i) => i.id) ?? []
+                        );
+                      }
+                    }}
+                  >
+                    {selectedItemIds.length === itemsPage?.results.length
+                      ? "Unselect all"
+                      : "Select all"}
+                  </Button>
+                </>
+              )}
+            </div>
+            <ItemsTable
+              items={itemsPage?.results ?? []}
+              withColumnBorders
+              trackSelectedItems={{
+                onSelectItem: (checked, item) => {
+                  if (checked) {
+                    setSelectedItemIds([...selectedItemIds, item.id]);
+                  } else {
+                    setSelectedItemIds(
+                      selectedItemIds.filter((i) => i !== item.id)
+                    );
+                  }
+                },
+                selectedItemIds,
+              }}
+            />
             <Pagination
               radius="md"
               total={Math.ceil(totalItems / PAGE_SIZE)}

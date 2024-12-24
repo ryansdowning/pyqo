@@ -20,6 +20,7 @@ class Scan(models.Model):
     )
     item = models.ForeignKey(Item, related_name="scans", on_delete=models.CASCADE)
     position = GeopositionField(blank=True, null=True)
+    readable_location = models.CharField(max_length=255, blank=True, null=True)
 
 class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

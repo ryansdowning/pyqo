@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [, setToken] = useLocalStorage({ key: "token", defaultValue: "" });
+  const [, setToken] = useLocalStorage({ key: "token" });
 
   const handleLogin = async () => {
     setLoading(true);
@@ -61,7 +61,7 @@ export default function LoginPage() {
             <br />
             pyqo
           </Title>
-          <Stack gap="xs" className="bg-red-200">
+          <Stack gap="xs">
             <TextInput
               value={username}
               onChange={(e) => setUsername(e.currentTarget.value)}

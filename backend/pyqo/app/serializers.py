@@ -2,28 +2,26 @@ from typing import TypedDict, Union
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from .models import Item, Scan, Property, ItemProperty
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
 
 class DynamicPropertySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source="property.id")
     label = serializers.CharField(source="property.label")
     value = serializers.JSONField()
 
     class Meta:
         model = ItemProperty
-        fields = ['label', 'value']
+        fields = ['id', 'label', 'value']
     
 class Position(TypedDict):
     latitude: float
     longitude: float
-    readable: Union[str, None]
 
 class ScanSerializer(serializers.ModelSerializer):
     position = serializers.SerializerMethodField()
 
     class Meta:
         model = Scan
-        fields = ['id', 'created_at', 'owner', 'item', 'position']
+        fields = ['id', 'created_at', 'owner', 'item', 'position', 'readable_location']
 
     @extend_schema_field({
         "type": "object",
@@ -31,7 +29,6 @@ class ScanSerializer(serializers.ModelSerializer):
         "properties": {
             "latitude": {"type": "number", "format": "float"},
             "longitude": {"type": "number", "format": "float"},
-            "readable": {"type": "string", "nullable": True}
         }
     })
     def get_position(self, obj) -> Union[Position, None]:
@@ -39,19 +36,7 @@ class ScanSerializer(serializers.ModelSerializer):
             return None
         latitude, longitude = obj.position.latitude, obj.position.longitude
 
-        geolocator = Nominatim(user_agent="geo_formatter")
-        readable = None
-        try:
-            location = geolocator.reverse((obj.position.latitude, obj.position.longitude), timeout=10)
-            if location and location.raw.get("address"):
-                address = location.raw["address"]
-                city = address.get("city") or address.get("town") or address.get("village")
-                country_code = address.get("country_code", "").upper()
-                if city and country_code:
-                    readable =  f"{city}, {country_code}"
-        except GeocoderTimedOut:
-            pass
-        return {'latitude': latitude, 'longitude': longitude, "readable": readable}
+        return {'latitude': latitude, 'longitude': longitude}
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:

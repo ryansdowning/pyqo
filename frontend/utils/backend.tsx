@@ -29,6 +29,7 @@ const PyqoMiddleware: Middleware = {
 };
 
 export const BASE_URL = "http://127.0.0.1:8000";
+export const APP_URL = "http://localhost:3000";
 export const client = createFetchClient<paths>({ baseUrl: BASE_URL });
 client.use(PyqoMiddleware);
 export const api = createClient(client);

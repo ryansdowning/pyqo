@@ -4,22 +4,24 @@ import { useRouter } from "next/router";
 
 import { useLocalStorage } from "@mantine/hooks";
 
-import { client } from "../utils/backend";
+import { useIsAuthenticated } from "../utils/hooks";
 
 export default function AuthenticatedProvider({ children }: PropsWithChildren) {
   const router = useRouter();
+  const isAuthenticated = useIsAuthenticated();
   const [token] = useLocalStorage({ key: "token" });
 
   useEffect(() => {
-    client.GET("/token/validate/").then((result) => {
-      const valid = result?.data?.valid;
-      if (valid && router.pathname === "/login") {
-        router.push("/");
-      } else if (!valid && router.pathname !== "/login") {
-        router.push("/login");
-      }
-    });
-  }, [token]);
+    if (isAuthenticated && router.pathname === "/login") {
+      router.push("/");
+    } else if (
+      !isAuthenticated &&
+      router.pathname !== "/login" &&
+      router.pathname !== "/codes/[id]/view"
+    ) {
+      router.push("/login");
+    }
+  }, [token, isAuthenticated]);
 
   return children;
 }

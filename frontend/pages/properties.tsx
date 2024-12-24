@@ -65,6 +65,7 @@ export default function PropertiesPage() {
           >
             <Stack gap="sm">
               <TextInput
+                radius="md"
                 label="Label"
                 placeholder="Property label"
                 value={createPropertyData.label}
@@ -77,6 +78,7 @@ export default function PropertiesPage() {
               />
               <Group justify="end" mt="md">
                 <Button
+                  radius="md"
                   onClick={() =>
                     createProperty.mutate({ body: createPropertyData })
                   }

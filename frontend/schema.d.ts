@@ -845,7 +845,7 @@ export interface components {
             type: "validation_error";
             errors: components["schemas"]["AppPropertiesUpdateError"][];
         };
-        AppScansCreateError: components["schemas"]["AppScansCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansCreateOwnerErrorComponent"] | components["schemas"]["AppScansCreateItemErrorComponent"];
+        AppScansCreateError: components["schemas"]["AppScansCreateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansCreateOwnerErrorComponent"] | components["schemas"]["AppScansCreateItemErrorComponent"] | components["schemas"]["AppScansCreateReadableLocationErrorComponent"];
         AppScansCreateErrorResponse400: components["schemas"]["AppScansCreateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansCreateItemErrorComponent: {
             /**
@@ -891,6 +891,22 @@ export interface components {
             code: "does_not_exist" | "incorrect_type";
             detail: string;
         };
+        AppScansCreateReadableLocationErrorComponent: {
+            /**
+             * @description * `readable_location` - readable_location (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "readable_location";
+            /**
+             * @description * `invalid` - invalid
+             *     * `max_length` - max_length
+             *     * `null_characters_not_allowed` - null_characters_not_allowed
+             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+             * @enum {string}
+             */
+            code: "invalid" | "max_length" | "null_characters_not_allowed" | "surrogate_characters_not_allowed";
+            detail: string;
+        };
         AppScansCreateValidationError: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -901,7 +917,7 @@ export interface components {
         };
         AppScansDestroyErrorResponse400: components["schemas"]["ParseErrorResponse"];
         AppScansListErrorResponse400: components["schemas"]["ParseErrorResponse"];
-        AppScansPartialUpdateError: components["schemas"]["AppScansPartialUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansPartialUpdateOwnerErrorComponent"] | components["schemas"]["AppScansPartialUpdateItemErrorComponent"];
+        AppScansPartialUpdateError: components["schemas"]["AppScansPartialUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansPartialUpdateOwnerErrorComponent"] | components["schemas"]["AppScansPartialUpdateItemErrorComponent"] | components["schemas"]["AppScansPartialUpdateReadableLocationErrorComponent"];
         AppScansPartialUpdateErrorResponse400: components["schemas"]["AppScansPartialUpdateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansPartialUpdateItemErrorComponent: {
             /**
@@ -947,6 +963,22 @@ export interface components {
             code: "does_not_exist" | "incorrect_type";
             detail: string;
         };
+        AppScansPartialUpdateReadableLocationErrorComponent: {
+            /**
+             * @description * `readable_location` - readable_location (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "readable_location";
+            /**
+             * @description * `invalid` - invalid
+             *     * `max_length` - max_length
+             *     * `null_characters_not_allowed` - null_characters_not_allowed
+             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+             * @enum {string}
+             */
+            code: "invalid" | "max_length" | "null_characters_not_allowed" | "surrogate_characters_not_allowed";
+            detail: string;
+        };
         AppScansPartialUpdateValidationError: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -956,7 +988,7 @@ export interface components {
             errors: components["schemas"]["AppScansPartialUpdateError"][];
         };
         AppScansRetrieveErrorResponse400: components["schemas"]["ParseErrorResponse"];
-        AppScansUpdateError: components["schemas"]["AppScansUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansUpdateOwnerErrorComponent"] | components["schemas"]["AppScansUpdateItemErrorComponent"];
+        AppScansUpdateError: components["schemas"]["AppScansUpdateNonFieldErrorsErrorComponent"] | components["schemas"]["AppScansUpdateOwnerErrorComponent"] | components["schemas"]["AppScansUpdateItemErrorComponent"] | components["schemas"]["AppScansUpdateReadableLocationErrorComponent"];
         AppScansUpdateErrorResponse400: components["schemas"]["AppScansUpdateValidationError"] | components["schemas"]["ParseErrorResponse"];
         AppScansUpdateItemErrorComponent: {
             /**
@@ -1002,6 +1034,22 @@ export interface components {
             code: "does_not_exist" | "incorrect_type";
             detail: string;
         };
+        AppScansUpdateReadableLocationErrorComponent: {
+            /**
+             * @description * `readable_location` - readable_location (enum property replaced by openapi-typescript)
+             * @enum {string}
+             */
+            attr: "readable_location";
+            /**
+             * @description * `invalid` - invalid
+             *     * `max_length` - max_length
+             *     * `null_characters_not_allowed` - null_characters_not_allowed
+             *     * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+             * @enum {string}
+             */
+            code: "invalid" | "max_length" | "null_characters_not_allowed" | "surrogate_characters_not_allowed";
+            detail: string;
+        };
         AppScansUpdateValidationError: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -1033,6 +1081,7 @@ export interface components {
          */
         ClientErrorEnum: "client_error";
         DynamicProperty: {
+            id: number;
             label: string;
             value: unknown;
         };
@@ -1279,8 +1328,8 @@ export interface components {
                 latitude?: number;
                 /** Format: float */
                 longitude?: number;
-                readable?: string | null;
             } | null;
+            readable_location?: string | null;
         };
         Property: {
             readonly id: number;
@@ -1305,8 +1354,8 @@ export interface components {
                 latitude?: number;
                 /** Format: float */
                 longitude?: number;
-                readable?: string | null;
             } | null;
+            readable_location?: string | null;
         };
         /**
          * @description * `server_error` - Server Error

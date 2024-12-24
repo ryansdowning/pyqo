@@ -1,24 +1,48 @@
 import { useRouter } from "next/router";
 
-import { Table, TableProps } from "@mantine/core";
+import { Checkbox, Table, TableProps } from "@mantine/core";
 
 import { components } from "../schema";
 import { formatDate, getReadablePositionFromScan } from "../utils/format";
 
 export interface ItemsTableProps extends TableProps {
   items: components["schemas"]["Item"][];
+  trackSelectedItems?: {
+    onSelectItem: (
+      checked: boolean,
+      item: components["schemas"]["Item"]
+    ) => void;
+    selectedItemIds: components["schemas"]["Item"]["id"][];
+  };
 }
 
-export default function ItemsTable({ items, ...props }: ItemsTableProps) {
+export default function ItemsTable({
+  items,
+  trackSelectedItems,
+  ...props
+}: ItemsTableProps) {
   const router = useRouter();
 
   const rows = items.map((item) => {
+    const isSelected = trackSelectedItems?.selectedItemIds.includes(item.id);
+
     return (
       <Table.Tr
         key={item.id}
         onClick={() => router.push(`/codes/${item.id}`)}
-        className="hover:bg-gray-200"
+        className="hover:bg-gray-200 cursor-pointer"
       >
+        {trackSelectedItems && (
+          <Table.Td>
+            <Checkbox
+              checked={isSelected}
+              onChange={(e) =>
+                trackSelectedItems.onSelectItem(e.currentTarget.checked, item)
+              }
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Table.Td>
+        )}
         <Table.Td>{item.id}</Table.Td>
         <Table.Td>{formatDate(item.created_at)}</Table.Td>
         <Table.Td>
@@ -40,6 +64,7 @@ export default function ItemsTable({ items, ...props }: ItemsTableProps) {
     <Table {...props}>
       <Table.Thead>
         <Table.Tr>
+          {trackSelectedItems && <Table.Th />}
           <Table.Th>ID</Table.Th>
           <Table.Th>Created</Table.Th>
           <Table.Th>Last Scanned</Table.Th>

@@ -4659,12 +4659,14 @@ components:
       - $ref: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansCreateItemErrorComponent'
+      - $ref: '#/components/schemas/AppScansCreateReadableLocationErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansCreateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppScansCreateOwnerErrorComponent'
           item: '#/components/schemas/AppScansCreateItemErrorComponent'
+          readable_location: '#/components/schemas/AppScansCreateReadableLocationErrorComponent'
     AppScansCreateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppScansCreateValidationError'
@@ -4744,6 +4746,32 @@ components:
       - attr
       - code
       - detail
+    AppScansCreateReadableLocationErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - readable_location
+          type: string
+          description: '* `readable_location` - readable_location'
+        code:
+          enum:
+          - invalid
+          - max_length
+          - null_characters_not_allowed
+          - surrogate_characters_not_allowed
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `max_length` - max_length
+            * `null_characters_not_allowed` - null_characters_not_allowed
+            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppScansCreateValidationError:
       type: object
       properties:
@@ -4775,12 +4803,14 @@ components:
       - $ref: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
+      - $ref: '#/components/schemas/AppScansPartialUpdateReadableLocationErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansPartialUpdateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppScansPartialUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansPartialUpdateItemErrorComponent'
+          readable_location: '#/components/schemas/AppScansPartialUpdateReadableLocationErrorComponent'
     AppScansPartialUpdateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppScansPartialUpdateValidationError'
@@ -4860,6 +4890,32 @@ components:
       - attr
       - code
       - detail
+    AppScansPartialUpdateReadableLocationErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - readable_location
+          type: string
+          description: '* `readable_location` - readable_location'
+        code:
+          enum:
+          - invalid
+          - max_length
+          - null_characters_not_allowed
+          - surrogate_characters_not_allowed
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `max_length` - max_length
+            * `null_characters_not_allowed` - null_characters_not_allowed
+            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppScansPartialUpdateValidationError:
       type: object
       properties:
@@ -4884,12 +4940,14 @@ components:
       - $ref: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
       - $ref: '#/components/schemas/AppScansUpdateItemErrorComponent'
+      - $ref: '#/components/schemas/AppScansUpdateReadableLocationErrorComponent'
       discriminator:
         propertyName: attr
         mapping:
           non_field_errors: '#/components/schemas/AppScansUpdateNonFieldErrorsErrorComponent'
           owner: '#/components/schemas/AppScansUpdateOwnerErrorComponent'
           item: '#/components/schemas/AppScansUpdateItemErrorComponent'
+          readable_location: '#/components/schemas/AppScansUpdateReadableLocationErrorComponent'
     AppScansUpdateErrorResponse400:
       oneOf:
       - $ref: '#/components/schemas/AppScansUpdateValidationError'
@@ -4969,6 +5027,32 @@ components:
       - attr
       - code
       - detail
+    AppScansUpdateReadableLocationErrorComponent:
+      type: object
+      properties:
+        attr:
+          enum:
+          - readable_location
+          type: string
+          description: '* `readable_location` - readable_location'
+        code:
+          enum:
+          - invalid
+          - max_length
+          - null_characters_not_allowed
+          - surrogate_characters_not_allowed
+          type: string
+          description: |-
+            * `invalid` - invalid
+            * `max_length` - max_length
+            * `null_characters_not_allowed` - null_characters_not_allowed
+            * `surrogate_characters_not_allowed` - surrogate_characters_not_allowed
+        detail:
+          type: string
+      required:
+      - attr
+      - code
+      - detail
     AppScansUpdateValidationError:
       type: object
       properties:
@@ -5026,10 +5110,13 @@ components:
     DynamicProperty:
       type: object
       properties:
+        id:
+          type: integer
         label:
           type: string
         value: {}
       required:
+      - id
       - label
       - value
     Error401:
@@ -5534,10 +5621,11 @@ components:
             longitude:
               type: number
               format: float
-            readable:
-              type: string
-              nullable: true
           readOnly: true
+        readable_location:
+          type: string
+          nullable: true
+          maxLength: 255
     Property:
       type: object
       properties:
@@ -5596,10 +5684,11 @@ components:
             longitude:
               type: number
               format: float
-            readable:
-              type: string
-              nullable: true
           readOnly: true
+        readable_location:
+          type: string
+          nullable: true
+          maxLength: 255
       required:
       - created_at
       - id
